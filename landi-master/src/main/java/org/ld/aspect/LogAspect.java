@@ -18,6 +18,10 @@ import org.slf4j.LoggerFactory;
 
 public class LogAspect {
 
+
+
+
+
 	@Resource(name="logService")
 	private ILogService logService;
 	
