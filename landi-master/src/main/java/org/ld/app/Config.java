@@ -12,7 +12,7 @@ import org.ld.utils.Para;
  */
 public class Config {
 
-
+	public static String url;
 	public static Map<String, String> settings;
 	public static Map<String, Integer> settingsInt;
 	public static Map<String, Integer> auths;
