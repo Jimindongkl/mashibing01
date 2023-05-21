@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.BasicsEventDao">
+	<resultMap id="BasicsEventResultMap" type="org.ld.model.BasicsEvent">
+	  <id column="BAS_ID" property="id" jdbcType="INTEGER"/>
+	  <result column="BAS_Name" property="basName" jdbcType="VARCHAR" />
+	  <result column="BAS_Describe" property="basDescribe" jdbcType="VARCHAR" />
+	  <result column="BAS_TypeName" property="basTypeName" jdbcType="VARCHAR" />
+	  <result column="BAS_Serial" property="serial" jdbcType="INTEGER" />
+	  <result column="BAS_CreateTime" property="createTime" jdbcType="DATE" />
+	  <result column="BAS_UpateTime" property="updateTime" jdbcType="DATE" />
+	</resultMap>
+	
+  	<!-- 屏幕展示-->
+	<select id="findBasicsEventList" resultMap="BasicsEventResultMap">
+		select r.* from (
+			select BAS_ID,BAS_Name,BAS_Describe,BAS_TypeName,BAS_Serial,BAS_CreateTime,BAS_UpateTime
+			from t_basicsEvent	order by BAS_Serial asc		
+		) r
+		 
+	</select>
+	
+</mapper>

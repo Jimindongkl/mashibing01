@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.SeatThemeDao" >
+	<resultMap id="SeatThemeResultMap" type="org.ld.model.SeatTheme" >
+	  <id column="ST_ID" property="id" jdbcType="INTEGER" />
+	  <result column="ST_SortID" property="sortID" jdbcType="VARCHAR" />
+	  <result column="ST_Name" property="name" jdbcType="VARCHAR" />
+	  <result column="ST_Describe" property="describe" jdbcType="VARCHAR" />
+	  <result column="ST_Image" property="imagePath" jdbcType="VARCHAR" />
+	  <result column="ST_int" property="ints" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<!-- 查询席位图标主题套图 -->
+	<select id="getSeatThemes" resultMap="SeatThemeResultMap">
+	select ST_ID,ST_SortID,ST_Name,ST_Describe,ST_Image,ST_int from t_seattheme
+	order by ST_int asc
+	</select>
+	
+	<!-- 修改席位图标主题套图 -->
+	<update id="updateSeatTheme" parameterType="org.ld.model.SeatTheme">
+		update t_seattheme set ST_Image = #{imagePath}
+			where ST_ID = #{id}
+	</update>
+	
+	
+</mapper>

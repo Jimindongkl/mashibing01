@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.DeviceDao" >
+    <resultMap id="DeviceResultMap" type="org.ld.model.Device" >
+        <id column="Dev_ID" property="devID" jdbcType="INTEGER" />
+        <result column="Dev_Name" property="devName" jdbcType="VARCHAR" />
+        <result column="Dev_ConnType" property="devConnType" jdbcType="VARCHAR" />
+        <result column="Dev_TypeID" property="devTypeID" jdbcType="VARCHAR" />
+        <result column="Dev_TypeName" property="devTypeName" jdbcType="VARCHAR" />
+        <result column="Dev_NetIPAddress" property="devNetIPAddress" jdbcType="VARCHAR" />
+        <result column="Dev_NetRecvPort" property="devNetRecvPort" jdbcType="INTEGER" />
+        <result column="Dev_NetSendPort" property="devNetSendPort" jdbcType="INTEGER" />
+        <result column="Dev_SerialPortCode" property="devSerialPortCode" jdbcType="INTEGER" />
+        <result column="Dev_PassWayStartNum" property="devPassWayStartNum" jdbcType="INTEGER" />
+        <result column="Dev_PassWayCount" property="devPassWayCount" jdbcType="INTEGER" />
+        <result column="Dev_PassWayUnit" property="devPassWayUnit" jdbcType="INTEGER" />
+        <result column="Dev_Rate" property="devRate" jdbcType="INTEGER" />
+        <result column="Dev_Bite" property="devBite" jdbcType="INTEGER" />
+        <result column="Dev_Paritycheck" property="devParitycheck" jdbcType="INTEGER" />
+        <result column="Dev_StopBit" property="devStopBit" jdbcType="INTEGER" />
+        <result column="Dev_ClassFileName" property="devClassFileName" jdbcType="VARCHAR" />
+        <result column="Dev_ClassName" property="devClassName" jdbcType="VARCHAR" />
+        <result column="Dev_ClassFile" property="devClassFile" jdbcType="VARCHAR" />
+        <result column="Dev_Serial" property="devSerial" jdbcType="INTEGER" />
+        <result column="Dev_Remark" property="devRemark" jdbcType="VARCHAR" />
+        <result column="Dev_CreateTime" property="devCreateTime" jdbcType="DATE" />
+        <result column="Dev_UpdateTime" property="devUpdateTime" jdbcType="DATE" />
+
+		<result column="dic_Sort" property="sort" jdbcType="VARCHAR" />
+		<result column="dic_Name" property="dicName" jdbcType="VARCHAR" />
+		<result column="dic_ParentID" property="parentID" jdbcType="INTEGER" />
+		<result column="dic_Serial" property="order" jdbcType="INTEGER" />
+		<result column="dic_Describe" property="describe" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <!-- 查询列表 -->
+    <select id="getDeviceList" parameterType="org.ld.model.Device" resultMap="DeviceResultMap">
+		SELECT
+				  Dev_ID,
+				  Dev_Name,
+				  Dev_ConnType,
+				  Dev_TypeID,
+				  b.dic_Name  AS devTypeName,
+				  Dev_NetIPAddress,
+				  Dev_NetRecvPort,
+				  Dev_NetSendPort,
+				  Dev_SerialPortCode,
+				  Dev_PassWayStartNum,
+				  Dev_PassWayCount,
+				  Dev_PassWayUnit,
+				  Dev_Rate,
+				  Dev_Bite,
+				  Dev_Paritycheck,
+				  Dev_StopBit,
+				  Dev_ClassFileName,
+				  Dev_ClassName,
+				  Dev_ClassFile,
+				  Dev_Serial,
+				  Dev_Remark,
+				  Dev_CreateTime,
+				  Dev_UpdateTime
+				FROM t_device a
+				LEFT JOIN t_dictionary b ON a.Dev_TypeID = b.id
+				where 1=1
+				 <if test="devID != null and devID !=''">
+                and Dev_ID = #{devID}
+	            </if>
+	            <if test="devName != null and devName != ''">
+	                and Dev_Name = #{devName}
+	            </if>
+	            <if test="devTypeID != null and devTypeID !=''">
+	                and Dev_TypeID = #{devTypeID}
+	            </if>
+	</select>
+    <!-- 查询字段 -->
+    <sql id="Base_Column_List">
+    Dev_ID,Dev_Name,Dev_ConnType,Dev_TypeID,Dev_NetIPAddress,Dev_NetRecvPort,Dev_NetSendPort,
+Dev_SerialPortCode,Dev_PassWayStartNum,Dev_PassWayCount,Dev_PassWayUnit,Dev_Rate,Dev_Bite,Dev_Paritycheck,
+Dev_StopBit,Dev_ClassFileName,Dev_ClassName,Dev_ClassFile,Dev_Serial,Dev_Remark,Dev_CreateTime,Dev_UpdateTime
+	</sql>
+    <!-- 查询条件-->
+    <sql id="Example_Where_Clause">
+        where 1=1
+        <trim suffixOverrides=",">
+            <if test="devID != null and devID !=''">
+                and Dev_ID = #{devID}
+            </if>
+            <if test="devName != null and devName != ''">
+                and Dev_Name = #{devName}
+            </if>
+            <if test="devTypeID != null and devTypeID !=''">
+                and Dev_TypeID = #{devTypeID}
+            </if>
+        </trim>
+    </sql>
+    <!-- 按条件查询 -->
+    <select id="getDeviceByConditions" parameterType="org.ld.model.Device"  resultMap="DeviceResultMap">
+       	SELECT
+				  Dev_ID,
+				  Dev_Name,
+				  Dev_ConnType,
+				  Dev_TypeID,
+				  b.dic_Name  AS devTypeName,
+				  Dev_NetIPAddress,
+				  Dev_NetRecvPort,
+				  Dev_NetSendPort,
+				  Dev_SerialPortCode,
+				  Dev_PassWayStartNum,
+				  Dev_PassWayCount,
+				  Dev_PassWayUnit,
+				  Dev_Rate,
+				  Dev_Bite,
+				  Dev_Paritycheck,
+				  Dev_StopBit,
+				  Dev_ClassFileName,
+				  Dev_ClassName,
+				  Dev_ClassFile,
+				  Dev_Serial,
+				  Dev_Remark,
+				  Dev_CreateTime,
+				  Dev_UpdateTime
+				FROM t_device a
+				LEFT JOIN t_dictionary b ON a.Dev_TypeID = b.id
+				where 1=1
+				 <if test="devID != null and devID !=''">
+                and Dev_ID = #{devID}
+	            </if>
+	            <if test="devName != null and devName != ''">
+	                and Dev_Name = #{devName}
+	            </if>
+	            <if test="devTypeID != null and devTypeID !=''">
+	                and Dev_TypeID = #{devTypeID}
+	            </if>
+    </select>
+    
+      <!-- 查询设备库现有设备类型 -->
+    <select id="getDevTypeID" resultMap="DeviceResultMap">
+      SELECT dev_typeID,t2.dic_Name as devTypeName FROM t_device t1 
+		LEFT JOIN t_dictionary t2 ON t1.Dev_TypeID = t2.id
+			GROUP BY Dev_TypeID
+    </select>
+    
+    <!-- 增加设备信息 -->
+    <insert id="addDevice" parameterType="org.ld.model.Device">
+		INSERT INTO t_device (
+					  Dev_Name,
+					  Dev_ConnType,
+					  Dev_TypeID,
+					  Dev_NetIPAddress,
+					  Dev_NetRecvPort,
+					  Dev_NetSendPort,
+					  Dev_SerialPortCode,
+					  Dev_PassWayStartNum,
+					  Dev_PassWayCount,
+					  Dev_PassWayUnit,
+					  Dev_Rate,
+					  Dev_Bite,
+					  Dev_Paritycheck,
+					  Dev_StopBit,
+					  Dev_ClassFileName,
+					  Dev_ClassName,
+					  Dev_ClassFile,
+					  Dev_Serial,
+					  Dev_Remark,
+					  Dev_CreateTime,
+					  Dev_UpdateTime
+					)
+					VALUES
+					 (
+						#{devName},
+						#{devConnType},
+						#{devTypeID},
+						#{devNetIPAddress},
+						#{devNetRecvPort},
+						#{devNetSendPort},
+						#{devSerialPortCode},
+						#{devPassWayStartNum},
+						#{devPassWayCount},
+						#{devPassWayUnit},
+						#{devRate},
+						#{devBite},
+						#{devParitycheck},
+						#{devStopBit},
+						#{devClassFileName},
+						#{devClassName},
+						#{devClassFile},
+						#{devSerial},
+						#{devRemark},
+						#{devCreateTime},
+						#{devUpdateTime}
+					  )
+	</insert>
+
+    <!-- 修改设备信息 -->
+    <update id="updateDevice" parameterType="org.ld.model.Device">
+	UPDATE t_device
+			SET
+			  Dev_Name = #{devName},
+			  Dev_ConnType = #{devConnType},
+			  Dev_TypeID = #{devTypeID},
+			  Dev_NetIPAddress = #{devNetIPAddress},
+			  Dev_NetRecvPort = #{devNetRecvPort},
+			  Dev_NetSendPort = #{devNetSendPort},
+			  Dev_SerialPortCode = #{devSerialPortCode},
+			  Dev_PassWayStartNum = #{devPassWayStartNum},
+			  Dev_PassWayCount = #{devPassWayCount},
+			  Dev_PassWayUnit = #{devPassWayUnit},
+			  Dev_Rate = #{devRate},
+			  Dev_Bite = #{devBite},
+			  Dev_Paritycheck = #{devParitycheck},
+			  Dev_StopBit = #{devStopBit},
+			  Dev_ClassFileName = #{devClassFileName},
+			  Dev_ClassName = #{devClassName},
+			  Dev_ClassFile = #{devClassFile},
+			  Dev_Serial = #{devSerial},
+			  Dev_Remark = #{devRemark},
+			  Dev_UpdateTime = #{devUpdateTime}
+			WHERE Dev_ID = #{devID};
+	</update>
+
+	<!-- 修改设备信息及通讯类型 -->
+	<update id="updateDeviceName" parameterType="org.ld.model.Device">
+	UPDATE t_device
+			SET
+			  Dev_Name = #{devName},
+			  Dev_ConnType = #{devConnType},
+			  Dev_UpdateTime = #{devUpdateTime}
+			WHERE Dev_ID = #{devID};
+	</update>
+
+	<!-- 批量删除活动设备信息-->
+	<delete id="deleteDeviceUsed" parameterType="java.util.Arrays">
+		delete from t_deviceused where DU_DeviceID in
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+		;
+	</delete>
+    <!-- 批量删除-->
+	<delete id="deleteDevice" parameterType="java.util.Arrays">
+		delete from t_device where Dev_ID in
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+		;
+	</delete>
+
+</mapper>

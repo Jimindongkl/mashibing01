@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.commonDao.SysSetDao" >
+    <resultMap id="SysSetResultMap" type="org.ld.model.commonModel.SysSet">
+        <id column="SYS_ID" property="sYSID" jdbcType="INTEGER" />
+        <result column="SYS_Key" property="sYSKey" jdbcType="VARCHAR" />
+        <result column="SYS_Title" property="sYSTitle" jdbcType="VARCHAR" />
+        <result column="SYS_Type" property="sYSType" jdbcType="VARCHAR" />
+        <result column="SYS_Value" property="sYSValue" jdbcType="VARCHAR" />
+        <result column="SYS_PID" property="sYSPID" jdbcType="INTEGER" />
+        <result column="SYS_Order" property="sYSOrder" jdbcType="INTEGER" />
+        <result column="SYS_Memo" property="sYSMemo" jdbcType="VARCHAR" />
+        <result column="SYS_CreatTime" property="sYSCreatTime" jdbcType="DATE" />
+    </resultMap>
+	
+	<!-- 查询系统设置中的系统配置-->
+	<select id="findSysSetList" resultMap="SysSetResultMap">
+	select SYS_ID,SYS_Key,SYS_Title,SYS_Type,SYS_Value,SYS_PID,SYS_Order,SYS_Memo,SYS_CreatTime
+		from t_sysset  order by SYS_Order asc 
+	</select>
+	
+	<!-- 单个修改系统设置中的系统配置项的值-->
+	<update id="updateSysSetModel" parameterType="org.ld.model.commonModel.SysSet">
+	update t_sysset set
+		SYS_Value = #{sYSValue}
+		where SYS_ID = #{sYSID}
+	</update>
+	
+	<!--条件查询  -->
+	<select id="queryKeyNameList" parameterType="java.lang.Integer" resultMap="SysSetResultMap">
+	select SYS_ID,SYS_Key,SYS_Title,SYS_Type,SYS_Value,SYS_PID,SYS_Order,SYS_Memo,SYS_CreatTime
+		from t_sysset  
+		where 1=1
+		and SYS_PID = #{value}
+		order by SYS_Order asc 
+	</select>
+	
+</mapper>

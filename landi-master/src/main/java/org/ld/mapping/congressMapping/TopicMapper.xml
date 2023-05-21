@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.congressDao.TopicDao" >
+ 
+  <resultMap id="TopicResultMap" type="org.ld.model.congressModel.Topic">
+    <id column="TO_ID" property="id" jdbcType="INTEGER" />
+    <result column="To_CongressID" property="congress.id" jdbcType="INTEGER" />
+    <result column="To_AgendaID" property="agenda.id" jdbcType="INTEGER" />
+    <result column="To_Name" property="toName" jdbcType="VARCHAR" />
+    <result column="To_Content" property="toContent" jdbcType="VARCHAR" />
+    <result column="To_PrintFormat" property="printFormat" jdbcType="VARCHAR" />
+    <result column="To_Type" property="type" jdbcType="INTEGER" />
+    <result column="To_VoteMethod" property="voteMethod" jdbcType="INTEGER" />
+    <result column="To_VoteBaseNum" property="voteBaseNum" jdbcType="INTEGER" />
+    <result column="To_ButtonType" property="buttonType" jdbcType="INTEGER" />
+    <result column="To_VoteSpecies" property="voteSpecies" jdbcType="INTEGER" />
+    <result column="To_VoteResult" property="voteResult" jdbcType="INTEGER" />
+    <result column="To_PassRate" property="passRate" jdbcType="INTEGER" />
+    <result column="To_PassButton" property="passButton" jdbcType="INTEGER" />
+    <result column="To_SpeakMode" property="speakMode" jdbcType="INTEGER" />
+    <result column="To_ShowMode" property="showMode" jdbcType="INTEGER" />
+    <result column="To_Image" property="image" jdbcType="VARCHAR" />
+    <result column="To_ShouldNum" property="shouldNum" jdbcType="INTEGER" />
+    <result column="To_ActualNum" property="actualNum" jdbcType="INTEGER" />
+    <result column="To_ButtonOneNum" property="buttonOneNum" jdbcType="INTEGER" />
+    <result column="To_ButtonOneName" property="buttonOneName" jdbcType="VARCHAR" />
+    <result column="To_ButtonTwoNum" property="buttonTwoNum" jdbcType="INTEGER" />
+    <result column="To_ButtonTwoName" property="buttonTwoName" jdbcType="VARCHAR" />
+    <result column="To_ButtonThreeNum" property="buttonThreeNum" jdbcType="INTEGER" />
+    <result column="To_ButtonThreeName" property="buttonThreeName" jdbcType="VARCHAR" />
+    <result column="To_ButtonFourNum" property="buttonFourNum" jdbcType="INTEGER" />
+    <result column="To_ButtonFourName" property="buttonFourName" jdbcType="VARCHAR" />
+    <result column="To_ButtoFiveNum" property="buttoFiveNum" jdbcType="INTEGER" />
+    <result column="To_ButtonFiveName" property="buttonFiveName" jdbcType="VARCHAR" />
+    <result column="To_ButtonNotNum" property="buttonNotNum" jdbcType="INTEGER" />
+    <result column="To_AgendaStartTime" property="agendaStartTime" jdbcType="DATE" />
+    <result column="To_AgendaEndTime" property="agendaEndTime" jdbcType="DATE" />
+    <result column="To_VoteStartTime" property="voteStartTime" jdbcType="DATE" />
+    <result column="To_VoteEndTime" property="voteEndTime" jdbcType="DATE" />
+    <result column="To_SpeakStartTime" property="speakStartTime" jdbcType="DATE" />
+    <result column="To_SpeakEndTime" property="speakEndTime" jdbcType="DATE" />
+    <result column="To_ReportStartTime" property="reportStartTime" jdbcType="DATE" />
+    <result column="To_ReportEndTime" property="reportEndTime" jdbcType="DATE" />
+    <result column="To_Num" property="num" jdbcType="INTEGER" />
+    <result column="To_CreateTime" property="createTime" jdbcType="DATE" />
+    <result column="To_UpdateTime" property="updateTime" jdbcType="DATE" />
+    <result column="To_Remark" property="remark" jdbcType="VARCHAR" />
+    <result column="To_ParentGUID" property="parentGUID" jdbcType="INTEGER" />
+    <result column="To_AgendaBgcolor" property="agendaBgcolor" jdbcType="VARCHAR" />
+    <result column="To_AgendaHtml" property="agendaHtml" jdbcType="VARCHAR" />
+    <result column="To_TopicLower" property="topicLower" jdbcType="INTEGER" />
+    <result column="To_status" property="status" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <sql id="topicAql">
+  TO_ID,To_CongressID,To_AgendaID,To_Name,To_Content,To_PrintFormat,
+  To_Type,To_VoteMethod,To_VoteBaseNum,To_ButtonType,To_VoteSpecies,To_VoteResult,
+  To_PassRate,To_PassButton,To_SpeakMode,To_ShowMode,To_Image,To_ShouldNum,To_ActualNum,
+  To_ButtonOneNum,To_ButtonOneName,To_ButtonTwoNum,To_ButtonTwoName,To_ButtonThreeNum,
+  To_ButtonThreeName,To_ButtonFourNum,To_ButtonFourName,To_ButtoFiveNum,To_ButtonFiveName,
+  To_ButtonNotNum,To_AgendaStartTime,To_AgendaEndTime,To_VoteStartTime,To_VoteEndTime,
+  To_SpeakStartTime,To_SpeakEndTime,To_ReportStartTime,To_ReportEndTime,To_Num,To_CreateTime,
+  To_UpdateTime,To_Remark,To_ParentGUID,To_AgendaBgcolor,To_AgendaHtml,To_TopicLower,To_status
+  </sql>
+  
+  <!-- 查询议题 -->
+  <select id="findAllTopic" resultMap="TopicResultMap">
+  	select 
+  	<include refid="topicAql"/>
+  	 from t_topic where To_ParentGUID = #{agendaId}  and To_TopicLower = 0
+  	 order by To_Num asc
+  </select>
+  
+   <!-- 查询子议题 -->
+  <select id="findAllTopicLower" resultMap="TopicResultMap">
+  	select 
+  	<include refid="topicAql"/>
+  	 from t_topic where To_TopicLower = #{TopicLowerId} 
+  	 order by To_Num asc
+  </select>
+  
+  <!-- 按id查询议题的详细信息 -->
+  <select id="getTopicId" resultMap="TopicResultMap" parameterType="java.lang.Integer">
+  	select 
+  	<include refid="topicAql"/>
+  	 from t_topic where TO_ID = #{value}
+  </select>
+  
+  <!-- 增加议题 -->
+  <insert id="addTopic" parameterType="org.ld.model.congressModel.Topic">
+  insert into t_topic (To_CongressID,To_AgendaID,To_Name,To_Content,To_PrintFormat,
+  To_Type,To_VoteMethod,To_VoteBaseNum,To_ButtonType,To_VoteSpecies,To_VoteResult,
+  To_PassRate,To_PassButton,To_SpeakMode,To_ShowMode,To_Image,To_ShouldNum,To_ActualNum,
+  To_ButtonOneNum,To_ButtonOneName,To_ButtonTwoNum,To_ButtonTwoName,To_ButtonThreeNum,
+  To_ButtonThreeName,To_ButtonFourNum,To_ButtonFourName,To_ButtoFiveNum,To_ButtonFiveName,
+  To_ButtonNotNum,To_AgendaStartTime,To_AgendaEndTime,To_VoteStartTime,To_VoteEndTime,
+  To_SpeakStartTime,To_SpeakEndTime,To_ReportStartTime,To_ReportEndTime,To_Num,To_CreateTime,
+  To_UpdateTime,To_Remark,To_ParentGUID,To_AgendaBgcolor,To_AgendaHtml,To_TopicLower)values
+  (#{congress.id},#{agenda.id},#{toName},#{toContent},#{printFormat},#{type},#{voteMethod},
+  #{voteBaseNum},#{buttonType},#{voteSpecies},#{voteResult},
+  #{passRate},#{passButton},#{speakMode},#{showMode},#{image},#{shouldNum},#{actualNum},
+  #{buttonOneNum},#{buttonOneName},#{buttonTwoNum},#{buttonTwoName},#{buttonThreeNum},
+  #{buttonThreeName},#{buttonFourNum},#{buttonFourName},#{buttoFiveNum},#{buttonFiveName},
+  #{buttonNotNum},#{agendaStartTime},#{agendaEndTime},#{voteStartTime},#{voteEndTime},
+  #{speakStartTime},#{speakEndTime},#{reportStartTime},#{reportEndTime},#{num},#{createTime},
+  #{updateTime},#{remark},#{parentGUID},#{agendaBgcolor},#{agendaHtml},#{topicLower})
+  </insert>
+  
+  <!-- update议题的投屏 -->
+  <update id="updateTopicMiracast" parameterType="org.ld.model.congressModel.Topic">
+  update t_topic set 
+  To_Name=#{toName},To_Content=#{toContent},To_AgendaBgcolor=#{agendaBgcolor},To_AgendaHtml=#{agendaHtml},To_Num=#{num},To_Image=#{image}
+  where TO_ID = #{id}
+  </update>
+  
+  <!-- update议题的参数设置 -->
+  <update id="updateTopicParam" parameterType="org.ld.model.congressModel.Topic">
+  update t_topic set To_Type =#{type},To_SpeakMode=#{speakMode},To_VoteSpecies=#{voteSpecies},
+  To_VoteMethod=#{voteMethod},To_VoteBaseNum=#{voteBaseNum},To_PassRate=#{passRate},To_ShowMode=#{showMode},
+  To_ButtonType=#{buttonType},To_ButtonOneName=#{buttonOneName},To_ButtonTwoName=#{buttonTwoName},
+  To_ButtonThreeName=#{buttonThreeName},To_ButtonFourName=#{buttonFourName},To_ButtonFiveName=#{buttonFiveName}
+  where TO_ID = #{id}
+  </update>
+  
+  <!-- 查询会议下议程的最大排序 -->
+  <select id="findAgendaMaxorder" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+  select Max(To_Num) from t_topic where To_ParentGUID = #{value} and To_TopicLower = 0
+  </select>
+  
+  <!-- 批量删除 -->
+  <delete id="delectTopics">
+  delete from t_topic where TO_ID in 
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+  </delete>
+  
+  <!-- 查询会议下子议程的最大排序 -->
+  <select id="findTopicMaxorder" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+  select Max(To_Num) from t_topic where To_TopicLower = #{value} 
+  </select>
+  
+  
+  <!-- 批量修改文件的序号 -->
+	<update id="updateBatchTopicTrees" parameterType="java.util.List">
+		update t_topic
+   	 <trim prefix="set" suffixOverrides=",">
+        <trim prefix="To_Num =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.num!=null">
+              when TO_ID=#{item.id} then #{item.num}
+             </if>
+             </foreach>
+        </trim>
+    </trim>
+    where TO_ID in
+    <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+        #{item.id,jdbcType=INTEGER}
+    </foreach>
+	</update>
+  
+  <!--查询正在进行的议题列表  -->
+  <select id="findPaperlessNowTopics"  parameterType="java.lang.Integer" resultType="java.util.Map">
+		 SELECT
+			c.id congressId,c.co_Name congressName,a.Ag_ID agendaId,a.Ag_Name agendaName,t.To_ID topicId,t.To_Name topicName,
+			t.To_TopicLower topicLower
+		FROM
+			t_topic t
+		LEFT JOIN t_congress c ON t.To_CongressID = c.id
+		LEFT JOIN t_agenda a ON t.To_AgendaID = a.Ag_ID
+		WHERE
+			a.Ag_Status = #{status}
+		AND t.To_TopicLower = 0
+  </select>
+  
+  <select id="findAllTopics" parameterType="org.ld.model.congressModel.Topic" resultMap="TopicResultMap">
+  select 
+  	<include refid="topicAql"/>
+  	 from t_topic where  1=1
+  	  <if test="congress.id != null and congress.id !=''">
+  	  and To_CongressID = #{congress.id}  
+  	 </if>
+  	 <if test="agenda.id != null and agenda.id !=''">
+  	  and To_AgendaID = #{agenda.id}
+  	 </if>
+  	 AND To_TopicLower = 0
+  </select>
+  
+  <!-- 按议题的id查询议题的投屏内容 -->
+  <select id="queryTopictoContent" parameterType="java.lang.Integer" resultType="org.ld.model.congressModel.Topic">
+  	select To_AgendaHtml agendaHtml,To_AgendaBgcolor agendaBgcolor  from t_topic where TO_ID= #{id}
+  </select>
+  
+  <!-- 修改当前议程下所有的议题的状态为0 -->
+  <update id="updateTopicCongressAgenda" parameterType="org.ld.model.congressModel.Topic">
+   update t_topic set To_status = 0
+  			 where To_CongressID = #{congress.id}  and To_AgendaID = #{agenda.id}
+  </update>
+  
+  <!-- 修改当前议题状态为1 -->
+  <update id="updateTopicStatus" parameterType="java.lang.Integer">
+    update t_topic set To_status = 1
+   			where TO_ID = #{topicId}
+  </update>
+  
+  <!-- 修改当前议题状态为-1 -->
+  <update id="updateTopicToPreStart" parameterType="java.lang.Integer">
+    update t_topic set To_status = -1
+   			where TO_ID = #{topicId}
+  </update>
+  <!-- 修改当前议题下的所有子议题的状态为0 -->
+  <update id="updateTopicCongressAgendaTopicLower" parameterType="org.ld.model.congressModel.Topic">
+   update t_topic set To_status = 0
+  			 where  To_TopicLower = #{topicLower}
+  </update>
+  
+</mapper>

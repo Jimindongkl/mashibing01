@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.StaffCategoryDao" >
+  <resultMap id="StaffcategoryResultMap" type="org.ld.model.StaffCategory" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="ca_Name" property="categoryName" jdbcType="VARCHAR" />
+    <result column="ca_Num" property="categoryNum" jdbcType="VARCHAR" />
+    <result column="ca_ReportPower" property="reportPower" jdbcType="INTEGER" />
+    <result column="ca_VotePower" property="votePower" jdbcType="INTEGER" />
+    <result column="ca_SpeakPower" property="speakPower" jdbcType="INTEGER" />
+    <result column="ca_FirstSpeakPower" property="firstSpeakPower" jdbcType="INTEGER" />
+    <result column="ca_CallPower" property="callPower" jdbcType="INTEGER" />
+    <result column="ca_SearchPower" property="searchPower" jdbcType="INTEGER" />
+    <result column="ca_Remarks" property="remarks" jdbcType="VARCHAR" />
+    <result column="ca_Serial" property="order" jdbcType="INTEGER" />
+  </resultMap>
+  	
+  	<sql id="StaffCategoryId">
+		<where>
+			<if test="categoryName!=null and categoryName!=''">
+			and ca_Name like concat('%',#{categoryName},'%')
+			</if>
+		</where>
+	</sql>
+  
+	 <sql id="StaffCategorySql">
+	 id,ca_Name,ca_Num,ca_ReportPower,ca_VotePower,ca_SpeakPower,ca_FirstSpeakPower,
+	 ca_CallPower,ca_SearchPower,ca_Remarks,ca_Serial
+	 </sql>
+ 
+ 	<!-- 查询人员类别  下拉列表 -->
+	<select id="getStaffCategoryList" resultMap="StaffcategoryResultMap">
+	select <include refid="StaffCategorySql"></include>
+		from t_staffcategory order by ca_Serial asc
+	</select>
+	
+	<!-- 增加人员类别 -->
+	<insert id="addStaffCategory" parameterType="org.ld.model.StaffCategory">
+	INSERT INTO   t_staffcategory (ca_Name,ca_Num,ca_ReportPower,ca_VotePower,ca_SpeakPower,ca_FirstSpeakPower,ca_CallPower,ca_SearchPower,ca_Remarks,ca_Serial) 
+	values	(#{categoryName},#{categoryNum},#{reportPower},#{votePower},#{speakPower},#{firstSpeakPower},#{callPower},#{searchPower},#{remarks},#{order})
+ 	</insert>
+ 	
+ 	<!-- 修改人员类别  -->
+ 	<update id="updateStaffCategory" parameterType="org.ld.model.StaffCategory">
+ 		update t_staffcategory SET  ca_Name = #{categoryName},ca_Num = #{categoryNum},ca_ReportPower = #{reportPower},
+ 									ca_VotePower = #{votePower},ca_SpeakPower = #{speakPower},ca_FirstSpeakPower = #{firstSpeakPower},
+ 									ca_CallPower = #{callPower},ca_SearchPower = #{searchPower},ca_Remarks = #{remarks},ca_Serial = #{order}
+ 							where 	id = #{id}
+ 	</update>
+ 	
+ 	<!-- 批量删除人员类别 -->
+ 	<delete id="deleteStaffCategory">
+		delete from t_staffcategory where id in 
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+	</delete>
+ 	
+ 	<!-- 条件查询返回对象 -->
+ 	<select id="findStaffCategoryModel" parameterType="org.ld.model.StaffCategory" resultMap="StaffcategoryResultMap">
+ 		select <include refid="StaffCategorySql"></include>
+ 		 from t_staffcategory
+ 		<include refid="StaffCategoryId"></include>
+ 	</select>
+ 	
+ 	<!-- 查看数据库中是否有相同的名字 -->
+ 	<select id="findCategoryNameEqual"  parameterType="org.ld.model.StaffCategory" resultMap="StaffcategoryResultMap">
+ 	select <include refid="StaffCategorySql"></include>
+ 		 from t_staffcategory where ca_Name = #{categoryName}
+ 	</select>
+ 	
+ 	
+ 	
+ 
+</mapper>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.ScreenDao">
+	<resultMap id="ScreenResultMap" type="org.ld.model.Screen">
+	  <id column="Scr_ID" property="id" jdbcType="INTEGER"/>
+	  <result column="Scr_SortID" property="sortID" jdbcType="INTEGER" />
+	  <result column="Scr_Name" property="scrName" jdbcType="VARCHAR" />
+	  <result column="Scr_Describe" property="scrDescribe" jdbcType="VARCHAR" />
+	  <result column="Scr_Width" property="width" jdbcType="INTEGER" />
+	  <result column="Scr_Height" property="height" jdbcType="INTEGER" />
+	  <result column="Scr_Xpoint" property="xpoint" jdbcType="INTEGER" />
+	  <result column="Scr_Ypoint" property="ypoint" jdbcType="INTEGER" />
+	  <result column="Scr_IsEnabled" property="isEnabled" jdbcType="INTEGER" />
+	  <result column="Scr_Serial" property="serial" jdbcType="INTEGER" />
+	  <result column="Scr_CreateTime" property="createTime" jdbcType="DATE" />
+	  <result column="Scr_UpdateTime" property="updateTime" jdbcType="DATE" />
+	</resultMap>
+	
+  	<!-- 屏幕展示-->
+	<select id="findScreenList" resultMap="ScreenResultMap">
+		select r.* from (
+			select Scr_ID,Scr_SortID,Scr_Name,Scr_Describe,Scr_Width,Scr_Height,Scr_Xpoint,Scr_Ypoint,Scr_IsEnabled,
+			Scr_Serial,Scr_CreateTime,Scr_UpdateTime
+			from t_screen			
+		)r
+		order by Scr_Serial asc
+	</select>
+	
+	<!-- 增加屏幕 -->
+	<insert id="addScreen"  parameterType="org.ld.model.Screen" keyColumn="Scr_ID" 
+     useGeneratedKeys="true" keyProperty="id">
+	insert into t_screen
+	(Scr_SortID,Scr_Name,Scr_Describe,Scr_Width,Scr_Height,Scr_Xpoint,Scr_Ypoint,Scr_IsEnabled,
+	Scr_Serial,Scr_CreateTime,Scr_UpdateTime)
+	values
+	(#{sortID},#{scrName},#{scrDescribe},#{width},#{height},#{xpoint},#{ypoint},#{isEnabled},#{serial},#{createTime},#{updateTime})
+	</insert>
+	
+	<!-- 修改屏幕参数 -->
+	<update id="updateScreen" parameterType="org.ld.model.Screen">
+	UPDATE t_screen SET Scr_Name=#{scrName},Scr_Describe=#{scrDescribe},Scr_Width=#{width},Scr_Height=#{height},Scr_Xpoint=#{xpoint},Scr_Ypoint=#{ypoint},
+	Scr_IsEnabled=#{isEnabled},Scr_Serial=#{serial},Scr_UpdateTime=#{updateTime}
+	where Scr_ID = #{id}
+	</update>
+	
+	<!-- 批量删除屏幕 -->
+	<delete id="deleteBatchScreen">
+		delete from t_screen where Scr_ID in 
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+	</delete>
+  
+	
+</mapper>

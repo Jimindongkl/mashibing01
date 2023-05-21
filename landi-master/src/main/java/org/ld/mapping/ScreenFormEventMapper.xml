@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.ScreenFormEventDao">
+	<resultMap id="ScreenFormEventResultMap" type="org.ld.model.ScreenFormEvent">
+	  <id column="SFE_ID" property="id" jdbcType="INTEGER"/>
+	  <result column="SFE_ScreenID" property="screen.id" jdbcType="INTEGER" />
+	  <result column="SFE_SF_ID" property="screenForm.id" jdbcType="INTEGER" />
+	  <result column="SFE_Name" property="sfeName" jdbcType="VARCHAR" />
+	 <result column="SFE_TypeName" property="sfeTypeName" jdbcType="VARCHAR" />
+	  <result column="SFE_Describe" property="sfeDescribe" jdbcType="VARCHAR" />
+	  <result column="SFE_StopTime" property="stopTime" jdbcType="VARCHAR" />
+	  <result column="SFE_NextFormID" property="screenForm.id" jdbcType="INTEGER" />
+	  <result column="SFE_CreateTime" property="createTime" jdbcType="DATE" />
+	  <result column="SFE_UpdateTime" property="updateTime" jdbcType="DATE" />
+	</resultMap>
+
+	<!-- 往大屏下批量增加事件 -->
+	<insert id="addBasicsEvent" useGeneratedKeys="true" parameterType="java.util.List">
+		insert into
+		t_screenformevent
+		(SFE_ScreenID,SFE_Name,SFE_TypeName,SFE_Describe,SFE_StopTime,SFE_CreateTime,SFE_UpdateTime)
+		values
+		<foreach collection="list" item="item" separator=",">
+			(#{item.screenId},#{item.sfeName},#{item.sfeTypeName},#{item.sfeDescribe},#{item.stopTime},#{item.createTime},#{item.updateTime})
+		</foreach>
+	</insert>
+
+	<!-- 批量删除大屏下的事件 -->
+	<delete id="deleteBatchScreenFormEvent">
+		delete from t_screenformevent where SFE_ScreenID in
+		<foreach collection="list" item="a" open="(" close=")"
+			separator=",">#{a}</foreach>
+	</delete>
+
+	<!-- 按大屏的id查询事件 -->
+	<select id="findScreenEventList" resultMap="ScreenFormEventResultMap" parameterType="org.ld.model.Screen">
+		select
+		SFE_ID,SFE_ScreenID,SFE_TypeName,SFE_SF_ID,SFE_Name,SFE_Describe,SFE_StopTime,SFE_NextFormID,SFE_CreateTime,SFE_UpdateTime
+		from t_screenformevent where SFE_ScreenID = #{id}
+	</select>
+
+	<!--按窗体的集合查询绑定事件 -->
+	<select id="fidscreenForm" parameterType="java.util.List" resultMap="ScreenFormEventResultMap">
+		select
+		SFE_ID,SFE_ScreenID,SFE_SF_ID,SFE_TypeName,SFE_Name,SFE_Describe,SFE_StopTime,SFE_NextFormID,SFE_CreateTime,SFE_UpdateTime
+		from t_screenformevent where SFE_SF_ID in
+		<foreach collection="list" item="a" index="index" open="("
+			close=")" separator=",">
+			#{a}
+		</foreach>
+	</select>
+
+	<!--按事件绑定窗体 -->
+	<update id="updateFormEvent" parameterType="org.ld.model.ScreenFormEvent">
+		update t_screenformevent set
+		 SFE_SF_ID = #{screenForm.id}
+				where SFE_ID = #{id}	
+	</update>
+	
+	<!--查询多块屏幕绑定的不为空的事件  -->
+	<select id="findScreenExistEventList"  resultMap="ScreenFormEventResultMap">
+		select
+		SFE_ID,SFE_ScreenID,SFE_SF_ID,SFE_Name,SFE_TypeName,SFE_Describe,SFE_StopTime,SFE_NextFormID,SFE_CreateTime,SFE_UpdateTime
+		from t_screenformevent where SFE_ScreenID in 
+		<foreach collection="list" item="a" index="index" open="("
+			close=")" separator=",">
+			#{a}
+		</foreach>
+		 AND SFE_SF_ID >0 group by SFE_Name
+	</select>
+	
+</mapper>

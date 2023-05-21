@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.PoliticalDao" >
+	<resultMap id="PoliticalResultMap" type="org.ld.model.Dictionary" >
+	  <id column="id" property="id" jdbcType="INTEGER" />
+	  <result column="dic_Sort" property="sort" jdbcType="VARCHAR" />
+	  <result column="dic_Name" property="dicName" jdbcType="VARCHAR" />
+	  <result column="dic_ParentID" property="parentID" jdbcType="INTEGER" />
+	  <result column="dic_Serial" property="order" jdbcType="INTEGER" />
+	   <result column="dic_Describe" property="describe" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="DictionaryId">
+		<where>
+			<!-- 名族名的模糊查询 -->
+			<if test="dicName!=null and dicName!=''">
+			and  dic_Sort = '党派' and dic_Name like concat('%',#{dicName},'%')	
+			</if>
+		</where>
+	</sql>
+  
+  	<!-- 查询党派 下拉框 -->
+	<select id="politicalList" resultMap="PoliticalResultMap">
+	select id,dic_Sort,dic_Name,dic_ParentID,dic_Serial,dic_Describe
+	from t_dictionary	where dic_Sort = '党派'  order by dic_Serial asc
+	</select>
+ 	
+	<!--条件查询  -->
+	<select id="findDictionaryId" parameterType="org.ld.model.Dictionary" resultMap="PoliticalResultMap">
+	select id,dic_Sort,dic_Name,dic_ParentID,dic_Serial,dic_Describe
+	from t_dictionary	 
+	<include refid="DictionaryId"></include>
+	 order by dic_Serial asc
+	</select>
+	
+</mapper>

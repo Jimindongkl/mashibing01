@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.congressDao.CongressDao" >
+ 
+  <resultMap id="CongressResultMap" type="org.ld.model.congressModel.Congress">
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="co_TypeID" property="typeID" jdbcType="INTEGER" />
+    <result column="co_Name" property="congressName" jdbcType="VARCHAR" />
+    <result column="co_Subject" property="subject" jdbcType="VARCHAR" />
+    <result column="co_RoomID" property="room.id" jdbcType="INTEGER" />
+    <result column="co_Status" property="status" jdbcType="INTEGER" />
+    <result column="co_StartTime" property="startTime" jdbcType="DATE" />
+    <result column="co_EndTime" property="endTime" jdbcType="DATE" />
+    <result column="co_AheadTime" property="AheadTime" jdbcType="INTEGER" />
+    <result column="co_CheckInStartTime" property="checkInStartTime" jdbcType="DATE" />
+    <result column="co_CheckInEndTime" property="checkInEndTime" jdbcType="DATE" />
+    <result column="co_CheckInType" property="checkInType" jdbcType="INTEGER" />
+    <result column="dic_Name" property="dicName" jdbcType="VARCHAR" />
+    <result column="co_SeatMode" property="seatMode" jdbcType="INTEGER" />
+    <result column="co_AutoRun" property="autoRun" jdbcType="INTEGER" />
+    <result column="co_AutoClose" property="autoClose" jdbcType="INTEGER" />
+    <result column="co_UpdateTime" property="updateTime" jdbcType="DATE" />
+    <result column="co_CreateTime" property="createTime" jdbcType="DATE" />
+    <result column="co_CreatorID" property="creatorID" jdbcType="INTEGER" />
+    <result column="co_HostUnit" property="hostUnit" jdbcType="VARCHAR" />
+    <result column="co_Serial" property="serial" jdbcType="INTEGER" />
+    <result column="co_IsFile" property="isFile" jdbcType="INTEGER" />
+  </resultMap>
+  
+	<sql id="CongressSql">
+		id,co_TypeID,co_Name,co_Subject,co_RoomID,co_Status,co_StartTime,co_EndTime,co_AheadTime,co_CheckInStartTime,
+		co_CheckInEndTime,co_CheckInType,co_SeatMode,co_AutoRun,co_AutoClose,co_UpdateTime,co_CreateTime,
+		co_CreatorID,co_HostUnit,co_Serial,co_IsFile
+	</sql>
+	
+	<sql id="statusId">
+		<where>
+			<!-- 根据状态查询 -->
+			<if test="status >=0 and status!=null">
+				 co_Status=#{status}
+			</if>
+		</where>
+	</sql>
+  
+  <!-- 查询所有的会议 -->
+  <select id="findCongressList"  resultMap="CongressResultMap">
+		select w.* from (
+		select	<include refid="CongressSql"/>
+		from t_congress 
+		)w
+		order by co_CreateTime desc
+	</select>
+	
+	<!-- 增加会议 -->
+	<insert id="addCongress" parameterType="org.ld.model.congressModel.Congress">
+	insert into t_congress (co_TypeID,co_Name,co_Status,co_Serial,co_StartTime,co_EndTime,co_RoomID,co_CheckInType,co_SeatMode,co_CreateTime,co_UpdateTime)
+	values(#{typeID},#{congressName},#{status},#{serial},#{startTime},#{endTime},#{room.id},#{checkInType},#{seatMode},#{createTime},#{updateTime})
+	</insert>
+	
+	<!-- 修改会议 -->
+	<update id="updateCongress" parameterType="org.ld.model.congressModel.Congress">
+	UPDATE t_congress SET co_Name=#{congressName},
+						  co_SeatMode=#{seatMode},
+						  co_CheckInType=#{checkInType},
+						  co_Subject=#{subject},
+						  co_StartTime=#{startTime},
+						  co_EndTime=#{endTime},
+						  co_RoomID=#{room.id},
+						  co_TypeID=#{typeID},
+						  co_HostUnit=#{hostUnit},
+						  co_UpdateTime=#{updateTime}
+						  where id = #{id}
+	</update>
+	
+	<!-- 删除会议 -->
+	<delete id="deleteCongress">
+	delete from t_congress where id in 
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+	</delete>	
+	
+	<!-- 查询属于会议的会议室 -->
+	<select id="findRoomId"  parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		select co_RoomID from t_congress where id = #{value}
+	</select>
+	
+	<!--查询属于会议的会议室 -->
+	<select id="findCongressAndRoom"  resultMap="CongressResultMap">
+		select <include refid="CongressSql"/> from t_congress t where   t.co_RoomID in 
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+	</select>
+	
+	<!-- 查询全部会议 -->
+	<select id="findAllCongress"  parameterType="org.ld.model.congressModel.Congress"  resultMap="CongressResultMap">
+	SELECT  
+	<include refid="CongressSql"/>
+	FROM
+	t_congress 
+	<include refid="statusId"/>
+	 order by co_Serial asc
+	</select>
+	
+	<!-- 查询全部会议中最大的排序 -->
+	<select id="getMaxCongressOrder" resultType="java.lang.Integer">
+	SELECT MAX(co_Serial) FROM t_congress
+	</select>
+	
+	<!--查询当前的会议详细信息  -->
+	<select id="findPaperlessNowCongressModel" parameterType="java.lang.Integer"  resultMap="CongressResultMap">
+	select w.* from (
+		select	<include refid="CongressSql"/>
+		from t_congress  where co_Status = #{status}
+		)w
+	</select>
+	
+	<!-- 修改会议的状态 -->
+	<update id="uploadStatusCongress" parameterType="org.ld.model.congressModel.Congress">
+	UPDATE t_congress SET 
+						  co_Status=#{status}
+						  where id = #{id}
+	</update>
+	
+	<!-- 根据修改的议程查会议的的状态 -->
+	<select id="findAgendaIdfindcongressBy" parameterType="java.lang.Integer"  resultMap="CongressResultMap">
+		select w.* from (
+		select	<include refid="CongressSql"/>
+		from t_congress 
+		where id = #{congressId}
+		)w
+	</select>
+	
+	<!-- 查询各自参加过的会议-->
+	<select id="findOneselfCongress" parameterType="org.ld.model.paperlessModel.StaffInfoSelfModel"  resultMap="CongressResultMap">
+		select
+		tc.id,tc.co_TypeID,tc.co_Name,tc.co_Subject,tc.co_RoomID,tc.co_Status,tc.co_StartTime,tc.co_EndTime,tc.co_AheadTime,tc.co_CheckInStartTime,
+		tc.co_CheckInEndTime,tc.co_CheckInType,tc.co_SeatMode,tc.co_AutoRun,tc.co_AutoClose,tc.co_UpdateTime,tc.co_CreateTime,
+		tc.co_CreatorID,tc.co_HostUnit,tc.co_Serial,tc.co_IsFile,td.dic_Name dicName
+		from t_congress tc 
+		LEFT JOIN  t_dictionary td
+ 		ON  tc.co_CheckInType = td.id 
+		where tc.id in (SELECT
+		Ag_CongressID
+		FROM
+		t_agenda tag
+		WHERE
+		tag.Ag_ID IN (
+		SELECT
+		ta.AP_AgendaID
+		FROM
+		t_agendaperson ta
+		WHERE
+		ta.AP_StaffID = #{staffInfoId}
+		<if test="startTime!=null and startTime!=''">
+				and tc.co_StartTime >=#{startTime}
+		</if>
+		<if test="endTime!=null and endTime!=''">
+			and tc.co_EndTime &lt;=#{endTime}
+		</if>
+		)
+		GROUP BY Ag_CongressID)
+	</select>
+	
+</mapper>

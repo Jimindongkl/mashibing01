@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.paperlessDao.NoteDao">
+
+	<resultMap id="NoteResultMap" type="org.ld.model.paperlessModel.NoteModel" >
+	  <id column="NT_ID" property="nTId" jdbcType="INTEGER" />
+	  <result column="NT_FileID" property="fileId" jdbcType="INTEGER" />
+	  <result column="NT_CongressID" property="congressID" jdbcType="INTEGER" />
+	  <result column="NT_AgendaID" property="agendaID" jdbcType="INTEGER" />
+	  <result column="NT_StaffID" property="staffID" jdbcType="INTEGER" />
+	  <result column="NT_MeetingName" property="meetingName" jdbcType="VARCHAR" />
+	  <result column="NT_TopicName" property="topicName" jdbcType="VARCHAR" />
+	  <result column="NT_TopicTimeStr" property="topicTimeStr" jdbcType="VARCHAR" />
+	  <result column="NT_Name" property="nTName" jdbcType="VARCHAR" />
+	  <result column="NT_Content" property="nTContent" jdbcType="VARCHAR" />
+	  <result column="NT_FilePath" property="nTFilePath" jdbcType="VARCHAR" />
+	  <result column="NT_FileType" property="ntFileType" jdbcType="INTEGER" />
+	  <result column="NT_FilePicPath" property="nTFilePicPath" jdbcType="VARCHAR" />
+	  <result column="NT_CreateTime" property="createTime" jdbcType="DATE" />
+	  <result column="NT_Remark" property="remark" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="NoteId">
+		<where>
+			<!-- 根据人员id查询 -->
+			<if test="staffID >0 ">
+				 NT_StaffID=#{staffID}
+			</if>
+			<if test="congressID >0 ">
+				and NT_CongressID=#{congressID}
+			</if>
+			<if test="agendaID >0 ">
+				and NT_AgendaID=#{agendaID}
+			</if>
+			<if test="fileId >0 ">
+				 and NT_FileID=#{fileId}
+			</if>
+		</where>
+	</sql>
+	
+	<!-- 查询人员的日记 -->
+	<select id="findStaffInfoNoteModel" parameterType="org.ld.model.paperlessModel.NoteModel" resultMap="NoteResultMap">
+	select NT_ID,NT_FileID,NT_CongressID,NT_AgendaID,NT_StaffID,NT_MeetingName,NT_TopicName,NT_TopicTimeStr,NT_Name,NT_Content,
+		NT_FilePath,NT_FileType,NT_FilePicPath,NT_CreateTime,NT_Remark
+	 	from t_note 
+	 <include refid="NoteId"></include>
+	</select>
+	
+	<!-- 修改笔记 -->
+	<update id="updateNoteModel" parameterType="org.ld.model.paperlessModel.NoteModel">
+		update t_note set 
+						  NT_Name = #{nTName},
+						  NT_Content = #{nTContent}
+						  where NT_ID =#{nTId}
+	</update>
+	
+	<!-- 增加笔记 -->
+	<insert id="addNoteModel" parameterType="org.ld.model.paperlessModel.NoteModel">
+	insert into t_note(NT_FileID,NT_CongressID,NT_AgendaID,NT_StaffID,NT_MeetingName,NT_TopicName,NT_TopicTimeStr,NT_Name,NT_Content,NT_FilePath,NT_FileType,NT_FilePicPath,NT_CreateTime,NT_Remark) 
+			values(#{fileId},#{congressID},#{agendaID},#{staffID},#{meetingName},#{topicName},#{topicTimeStr},#{nTName},#{nTContent},#{nTFilePath},#{ntFileType},#{nTFilePicPath},#{createTime},#{remark})
+	</insert>
+	
+	<!-- 删除笔记 -->
+	<delete id="deleteNoteModel">
+		delete from t_note where NT_ID  in 
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+	</delete>
+	
+</mapper>

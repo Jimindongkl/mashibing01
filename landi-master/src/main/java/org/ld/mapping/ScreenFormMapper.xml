@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.ScreenFormDao">
+	<resultMap id="ScreenFormResultMap" type="org.ld.model.ScreenForm">
+	  <id column="SF_ID" property="id" jdbcType="INTEGER"/>
+	  <result column="SF_ScreenID" property="screen.id" jdbcType="INTEGER" />
+	  <result column="SF_TypeID" property="typeID" jdbcType="INTEGER" />
+	  <result column="SF_Name" property="sfName" jdbcType="VARCHAR" />
+	  <result column="SF_Describe" property="sfDescribe" jdbcType="VARCHAR" />
+	  <result column="SF_Content" property="sfContent" jdbcType="VARCHAR" />
+	  <result column="SF_Bgcolor" property="sfBgcolor" jdbcType="VARCHAR" />
+	  <result column="SF_ScreenPath" property="sfScreenPath" jdbcType="VARCHAR" />
+	  <result column="SF_Width" property="sfWidth" jdbcType="INTEGER" />
+	  <result column="SF_Height" property="sfHeight" jdbcType="INTEGER" />
+	  <result column="SF_CreateTime" property="createTime" jdbcType="DATE" />
+	  <result column="SF_UpdateTime" property="updateTime" jdbcType="DATE" />
+	</resultMap>
+	
+	<!-- 查询窗体 -->
+	<select id="findScreenFormList" parameterType="org.ld.model.Screen"  resultMap="ScreenFormResultMap">
+	select r.* from (
+			select SF_ID,SF_ScreenID,SF_TypeID,SF_Name,SF_Describe,SF_Width,SF_Height,
+			SF_CreateTime,SF_UpdateTime
+			from t_screenform		
+			where SF_ScreenID =  #{id}
+		)r
+		order by SF_CreateTime asc
+	</select>
+	
+	<!-- 增加窗体 -->
+	<insert id="addScreenForm" parameterType="org.ld.model.ScreenForm">
+		insert into t_screenform
+		(SF_ScreenID,SF_TypeID,SF_Name,SF_Describe,SF_Width,SF_Bgcolor,SF_ScreenPath,SF_Height,SF_CreateTime,SF_UpdateTime)
+		values
+		(#{screen.id},#{typeID},#{sfName},#{sfDescribe},#{sfWidth},#{sfBgcolor},#{sfScreenPath},#{sfHeight},#{createTime},#{updateTime})
+	</insert>
+	
+	<!-- 修改窗体参数 -->
+	<update id="updateScreenForm" parameterType="org.ld.model.ScreenForm">
+	UPDATE t_screenform SET 
+			SF_Name=#{sfName},SF_Describe=#{sfDescribe},SF_Width=#{sfWidth},
+			SF_Bgcolor=#{sfBgcolor},SF_ScreenPath=#{sfScreenPath},
+			SF_Height=#{sfHeight},SF_UpdateTime=#{updateTime}
+	where SF_ID = #{id}			  		 
+	</update>
+	
+	<!-- 批量删除窗体 -->
+	<delete id="deleteBatchScreenForm">
+	delete from t_screenform where SF_ID in 
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+	</delete>
+	
+	<!--按窗体的id查询窗体的布局  -->
+  	<select id="findScreenFormContent" parameterType="org.ld.model.ScreenForm"  resultMap="ScreenFormResultMap">
+  		select SF_ID,SF_Content,SF_Bgcolor,SF_ScreenPath from t_screenform		
+			where SF_ID =  #{id}
+  	</select>
+  	
+  	<!--按窗体的id修改窗体的布局  -->
+  	<update id="updateScreenFormContent" parameterType="org.ld.model.ScreenForm">
+		UPDATE t_screenform SET SF_Content = #{sfContent},
+		SF_Bgcolor=#{sfBgcolor},SF_ScreenPath=#{sfScreenPath}
+			where SF_ID = #{id}			  		 
+	</update>
+	
+	<!--根据大屏的id和事件查询窗体的内容  -->
+	<select id="findScreenformeventList" parameterType="org.ld.vo.ScreenJsonVo" resultMap="ScreenFormResultMap">
+		select 
+		SF_ID,SF_ScreenID,SF_TypeID,SF_Name,SF_Describe,SF_Content,SF_Width,SF_Height,SF_CreateTime,SF_UpdateTime
+		 from t_screenform where SF_ID in (
+		select SFE_SF_ID from t_screenformevent where  SFE_ScreenID=#{screenID} and SFE_TypeName=#{seventContent}
+		)
+	</select>
+	
+</mapper>

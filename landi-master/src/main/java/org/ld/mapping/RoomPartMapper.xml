@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.RoomPartDao">
+	<resultMap id="RoomPartResultMap" type="org.ld.model.RoomPart">
+	  <id column="RP_ID" property="id" jdbcType="INTEGER"/>
+	  <result column="RP_RoomID" property="roomID" jdbcType="INTEGER" />
+	  <result column="RP_PartName" property="partName" jdbcType="VARCHAR" />
+	  <result column="RP_PartDescribe" property="partDescribe" jdbcType="VARCHAR" />
+	  <result column="RP_ParetNum" property="paretNum" jdbcType="INTEGER" />
+	  <result column="RP_Color" property="color" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<!--按条件查询 -->
+	<select id="findRoomParts"  parameterType="int" resultMap="RoomPartResultMap">
+		select RP_ID,RP_RoomID,RP_PartName,RP_PartDescribe,RP_ParetNum,RP_Color from t_roompart
+		where RP_RoomID =#{value}
+	</select>
+	
+	<!-- 批量增加会议室分区 -->
+	<insert id="addRoomPartBatch" useGeneratedKeys="true" parameterType="org.ld.model.RoomPart">
+		insert into t_roompart (RP_RoomID,RP_PartName,RP_PartDescribe,RP_ParetNum,RP_Color) values
+		<foreach collection="list" item="item"  separator="," >
+		(#{item.roomID},#{item.partName},#{item.partDescribe},#{item.paretNum},#{item.color})
+		</foreach>
+	</insert>
+	
+	<!-- 修改会议室分区 -->
+	<update id="updateRoom"  parameterType="org.ld.model.RoomPart">
+        update t_roompart  SET RP_RoomID = #{roomID}, RP_PartName = #{partName},RP_PartDescribe=#{partDescribe},
+        						RP_ParetNum = #{paretNum},RP_Color = #{color}
+        						where RP_ID = #{id}
+    </update>
+	
+	<!-- 增加会议室分区 -->
+	<insert id="addRoomPart" parameterType="org.ld.model.RoomPart">
+		insert into t_roompart (RP_RoomID,RP_PartName,RP_PartDescribe,RP_ParetNum,RP_Color) values
+		(#{roomID},#{partName},#{partDescribe},#{paretNum},#{color})
+	</insert>
+	
+	<!-- 批量删除1 -->
+	<delete id="deleteNotPart">
+		delete from t_roompart where RP_RoomID = #{integer} and RP_ID not in 
+		<foreach collection="ids" item="ids" open="("   close=")"  separator=",">#{ids}</foreach>
+	</delete>
+	
+	<!-- 批量删除2 -->
+	<delete id="deleteRoomParts">
+		delete from t_roompart where RP_ID  in 
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+	</delete>
+	
+</mapper>

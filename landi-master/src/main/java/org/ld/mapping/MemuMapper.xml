@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.MemuDao" >
+	<resultMap id="MemuResultMap" type="org.ld.model.Memu" >
+	  <id column="id" property="id" jdbcType="INTEGER" />
+	  <result column="bl_ParentID" property="parentID" jdbcType="VARCHAR" />
+	  <result column="bl_Name" property="blockName" jdbcType="VARCHAR" />
+	  <result column="bl_Serial" property="serial" jdbcType="INTEGER" />
+	  <result column="bl_Code" property="code" jdbcType="INTEGER" />
+	  <result column="bl_Version" property="version" jdbcType="VARCHAR" />
+	  <result column="bl_Remark" property="remark" jdbcType="VARCHAR" />
+	  <result column="bl_CreateTime" property="createTime" jdbcType="DATE" />
+	  <result column="bl_UpdateTime" property="updateTime" jdbcType="DATE" />
+	</resultMap>
+  
+	 <sql id="Base_Conlumn_List">
+	 id,bl_ParentID,bl_Name,bl_Serial,bl_Code,bl_Version,bl_Remark,bl_CreateTime,bl_UpdateTime
+	 </sql>
+	
+	<!-- 查询菜单 -->
+	<select id="queryMenuList" resultMap="MemuResultMap">
+	select 
+	<include refid="Base_Conlumn_List"></include> 
+	from t_block order by bl_Serial asc
+	</select>
+ 
+  
+	
+</mapper>

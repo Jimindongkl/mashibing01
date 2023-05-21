@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.SeatModelDao" >
+	<resultMap id="SeatModelResultMap" type="org.ld.model.SeatModel" >
+	  <id column="SM_ID" property="id" jdbcType="INTEGER" />
+	  <result column="SM_Name" property="modelName" jdbcType="VARCHAR" />
+	  <result column="SM_RoomID" property="room.id" jdbcType="INTEGER" />
+	  <result column="SM_SeatThemeID" property="seatTheme.id" jdbcType="INTEGER" />
+	  <result column="SM_Width" property="width" jdbcType="INTEGER" />
+	  <result column="SM_Height" property="height" jdbcType="INTEGER" />
+	  <result column="SM_Row" property="row" jdbcType="INTEGER" />
+	  <result column="SM_Column" property="column" jdbcType="INTEGER" />
+	  <result column="SM_FileXML" property="fileXML" jdbcType="VARCHAR" />
+	  <result column="SM_Background" property="background" jdbcType="VARCHAR" />
+	  <result column="SM_CreateTime" property="createTime" jdbcType="DATE" />
+	  <result column="SM_UpdateTime" property="updateTime" jdbcType="DATE" />
+	</resultMap>
+	
+	<sql id="SeatModelId">
+		<where>
+			<!-- 模糊查询 -->
+			<if test="modelName!=null and modelName!=''">
+				and SM_Name like concat('%',#{modelName},'%')
+			</if>
+		</where>
+	</sql>
+	
+  
+  	<!-- 查询坐席图下拉框 -->
+	<select id="findSeatModel" resultMap="SeatModelResultMap">
+	select SM_ID,SM_Name from t_seatmodel	
+	</select>
+
+	<!-- 按条件 查询 坐席图 -->
+	<select id="getSeatModels" parameterType="org.ld.model.SeatModel" resultMap="SeatModelResultMap">
+	SELECT
+		  SM_ID,
+		  SM_Name,
+		  SM_RoomID,
+		  SM_SeatThemeID,
+		  SM_Width,
+		  SM_Height,
+		  SM_Row,
+		  SM_Column,
+		  SM_FileXML,
+		  SM_Background,
+		  SM_CreateTime,
+		  SM_UpdateTime
+		FROM t_seatmodel
+		<include refid="SeatModelId"></include>
+		order by SM_ID desc
+	</select>
+
+	<insert id="addSeatModel" parameterType="org.ld.model.SeatModel"
+	keyColumn="SM_ID" useGeneratedKeys="true" keyProperty="id">
+
+		INSERT INTO t_seatmodel
+            (
+             SM_Name,
+             SM_RoomID,
+             SM_SeatThemeID,
+             SM_Width,
+             SM_Height,
+             SM_Row,
+             SM_Column,
+             SM_FileXML,
+             SM_Background,
+             SM_CreateTime)
+		VALUES (
+				#{modelName},
+				#{room.id},
+				#{seatTheme.id},
+				#{width},
+				#{height},
+				#{row},
+				#{column},
+				#{fileXML},
+				#{background},
+				#{createTime}
+				);
+	</insert>
+
+	<update id="updateSeatModel" parameterType="org.ld.model.SeatModel" >
+			UPDATE t_seatmodel
+				SET
+				  SM_Name =#{modelName},
+				  SM_RoomID =#{room.id},
+				  SM_SeatThemeID =#{seatTheme.id},
+				  SM_Width =#{width},
+				  SM_Height =#{height},
+				  SM_Row =#{row},
+				  SM_Column =#{column},
+				  SM_FileXML =#{fileXML},
+				  SM_Background =#{background},
+				  SM_UpdateTime =#{updateTime}
+				WHERE SM_ID =#{id};
+	</update>
+
+	<update id="updateFilexmlById" parameterType="org.ld.model.SeatModel" >
+			UPDATE t_seatmodel
+				SET
+				  SM_FileXML =#{fileXML},
+				  SM_UpdateTime =#{updateTime}
+				WHERE SM_ID =#{id};
+	</update>
+	<!-- 批量删除-->
+	<delete id="deleteSeatModel">
+		delete from t_seatmodel where SM_ID in
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+	</delete>
+	
+	<!-- 按会议室的id查询坐席图的详细信息 -->
+	<select id="findRoomIdToSeatModelInfo" parameterType="java.lang.Integer" resultMap="SeatModelResultMap">
+		SELECT
+		SM_ID,
+		SM_Name,
+		SM_RoomID,
+		SM_SeatThemeID,
+		SM_Width,
+		SM_Height,
+		SM_Row,
+		SM_Column,
+		SM_FileXML,
+		SM_Background,
+		SM_CreateTime,
+		SM_UpdateTime
+	FROM
+		t_seatmodel 
+	where SM_ID = (select rm_SeatModelID from t_room r where id = #{roomId} )
+	</select>
+
+</mapper>

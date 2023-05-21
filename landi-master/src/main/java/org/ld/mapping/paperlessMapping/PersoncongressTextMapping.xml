@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.paperlessDao.PersoncongressTextDao">
+
+	<resultMap id="PersoncongressTextResultMap" type="org.ld.model.paperlessModel.PersoncongressText" >
+	  <id column="PP_ID" property="pPID" jdbcType="INTEGER" />
+	  <result column="PP_CongressID" property="congressID" jdbcType="INTEGER" />
+	  <result column="PP_AgendaID" property="agendaID" jdbcType="INTEGER" />
+	  <result column="PP_TopicID" property="topicID" jdbcType="INTEGER" />
+	  <result column="PP_FileID" property="fileID" jdbcType="INTEGER" />
+	  <result column="PP_StaffID" property="staffID" jdbcType="INTEGER" />
+	  <result column="PP_IsOpen" property="isOpen" jdbcType="BOOLEAN" />
+	  <result column="PP_Text" property="text" jdbcType="VARCHAR" />
+	  <result column="PP_X" property="x" jdbcType="DOUBLE" />
+	  <result column="PP_Y" property="y" jdbcType="DOUBLE" />
+	  <result column="PP_FontSize" property="fontSize" jdbcType="INTEGER" />
+	  <result column="PP_PageNum" property="pageNum" jdbcType="INTEGER" />
+	  <result column="PP_FontColor" property="fontColor" jdbcType="VARCHAR" />
+	  <result column="PP_FontWeight" property="fontWeight" jdbcType="VARCHAR" />
+	  <result column="PP_LineAmount" property="lineAmount" jdbcType="INTEGER" />
+	  <result column="PP_FalseID" property="falseID" jdbcType="VARCHAR" />
+	  <result column="PP_UpdateTime" property="updateTime" jdbcType="DATE" />
+	  <result column="PP_CreateTime" property="createTime" jdbcType="DATE" />
+	  <result column="PP_Remark" property="remark" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="PersoncongressTextId">
+		<where>
+			<!-- 根据会议id查询 -->
+			<if test=" congressID>0 ">
+				 PP_CongressID=#{congressID}
+			</if>
+			<!-- 根据日程id的查询 -->
+			<if test="agendaID >0 ">
+				and PP_AgendaID=#{agendaID}
+			</if>
+			<!-- 根据id的查询 -->
+			<if test="topicID >0 ">
+				and PP_TopicID=#{topicID}
+			</if>
+			<!-- 根据人员id的查询 -->
+			<if test="staffID >0 ">
+				and PP_StaffID=#{staffID}
+			</if>
+			<!-- 根据文件id的查询 -->
+			<if test="fileID >0 ">
+				and PP_FileID=#{fileID}
+			</if>
+			<!-- 根据文件页码查询 -->
+			<if test="pageNum >0 ">
+				and PP_PageNum=#{pageNum}
+			</if>
+		</where>
+	</sql>
+	
+	<!-- 批量增加 文字批注-->
+	<insert id="addPersoncongressTextbatch" useGeneratedKeys="true" parameterType="org.ld.model.paperlessModel.PersoncongressText">
+		insert into t_personcongressText (PP_CongressID,PP_AgendaID,PP_TopicID,PP_FileID,PP_StaffID,PP_IsOpen,PP_Text,PP_X,PP_Y,PP_FontSize,PP_PageNum,PP_FontColor,PP_FontWeight,PP_LineAmount,PP_FalseID,PP_CreateTime,PP_Remark)values
+		<foreach collection="list" item="item"  separator=",">
+		(#{item.congressID},#{item.agendaID},#{item.topicID},#{item.fileID},#{item.staffID},#{item.isOpen},#{item.text},#{item.x},#{item.y},#{item.fontSize},#{item.pageNum},#{item.fontColor},#{item.fontWeight},#{item.lineAmount},#{item.falseID},#{item.createTime},#{item.remark})
+		</foreach>
+	</insert>
+	
+	<!-- 批量修改文字批注 -->
+	<update id="updatePersoncongressTextbatch" parameterType="java.util.List">
+		update t_personcongressText
+   	 <trim prefix="set" suffixOverrides=",">
+        <trim prefix="PP_UpdateTime =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.updateTime!=null">
+              when PP_FalseID=#{item.falseID} then #{item.updateTime}
+             </if>
+             </foreach> 
+        </trim>
+        
+         <trim prefix="PP_Text =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.text!=null">
+              when PP_FalseID=#{item.falseID} then #{item.text}
+             </if>
+             </foreach>
+        </trim>
+        <trim prefix="PP_X =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.x!=null">
+              when PP_FalseID=#{item.falseID} then #{item.x}
+             </if>
+             </foreach>
+        </trim>
+        <trim prefix="PP_Y =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.y!=null">
+              when PP_FalseID=#{item.falseID} then #{item.y}
+             </if>
+             </foreach>
+        </trim>
+        <trim prefix="PP_FontSize =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.fontSize!=null">
+              when PP_FalseID=#{item.falseID} then #{item.fontSize}
+             </if>
+             </foreach>
+        </trim>
+        <trim prefix=" PP_IsOpen=case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+              when PP_FalseID=#{item.falseID} then #{item.isOpen}
+             </foreach>
+        </trim>
+        <trim prefix="PP_PageNum =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.pageNum!=null">
+              when PP_FalseID=#{item.falseID} then #{item.pageNum}
+             </if>
+             </foreach>
+        </trim>
+        <trim prefix="PP_FontColor =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.fontColor!=null">
+              when PP_FalseID=#{item.falseID} then #{item.fontColor}
+             </if>
+             </foreach>
+        </trim>
+        <trim prefix="PP_FontWeight =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.fontWeight!=null">
+              when PP_FalseID=#{item.falseID} then #{item.fontWeight}
+             </if>
+             </foreach>
+        </trim>
+        <trim prefix="PP_LineAmount =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.lineAmount!=null">
+              when PP_FalseID=#{item.falseID} then #{item.lineAmount}
+             </if>
+             </foreach>
+        </trim>
+         <trim prefix="PP_Remark =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.remark!=null">
+              when PP_FalseID=#{item.falseID} then #{item.remark}
+             </if>
+             </foreach>
+        </trim>
+      </trim>
+    where PP_FalseID in
+    <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+        #{item.falseID,jdbcType=VARCHAR}
+    </foreach>
+	</update>
+	
+	<!-- 批量删除文字批注 -->
+	<delete id="delectOneselfTextPiZhu">
+		delete from t_personcongressText where PP_ID  in 
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+	</delete>
+	
+	<!-- 批量删除文字批注通过FaseID删除 -->
+	<delete id="delectOneselfTextPiZhuFaseID">
+		delete from t_personcongressText where PP_FalseID  in 
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+	</delete>
+	
+	<!-- 查询个人的文字批注 -->
+	<select id="findOneselfTextPiZhu" parameterType="org.ld.model.paperlessModel.PersoncongressText" resultMap="PersoncongressTextResultMap">
+		select PP_ID,PP_CongressID,PP_AgendaID,PP_TopicID,PP_StaffID,PP_FileID,PP_Text,PP_X,PP_Y,PP_FontSize,PP_PageNum,
+		PP_FontColor,PP_FontWeight,PP_FalseID,PP_IsOpen,PP_LineAmount,PP_UpdateTime,PP_CreateTime,PP_Remark
+		 from t_personcongressText
+		<include refid="PersoncongressTextId"></include>
+	</select>
+	
+	<!-- 单个修改文字批注 -->
+	<update id="updateTextPiZhu" parameterType="org.ld.model.paperlessModel.PersoncongressText">
+		UPDATE t_personcongressText SET 
+						 PP_UpdateTime =updateTime,
+          				 PP_Text =text,
+						 PP_X = x,
+						 PP_Y = y,
+						 PP_FontSize = fontSize,
+						 PP_PageNum = pageNum,
+						 PP_FontColor = fontColor,
+						 PP_FontWeight = fontWeight,
+						 PP_LineAmount = lineAmount,
+						 PP_IsOpen = isOpen,
+						 PP_Remark = Remark
+					where PP_FalseID = #{falseID}
+   	
+	</update>
+	
+	<!-- 单个增加文字批注 -->
+	<insert id="addTextPiZhu" parameterType="org.ld.model.paperlessModel.PersoncongressText" keyColumn="PP_ID"
+     useGeneratedKeys="true" keyProperty="pPID">
+	insert into t_personcongressText (PP_CongressID,PP_AgendaID,PP_TopicID,PP_FileID,PP_StaffID,PP_IsOpen,PP_Text,PP_X,PP_Y,PP_FontSize,PP_PageNum,PP_FontColor,PP_FontWeight,PP_LineAmount,PP_FalseID,PP_CreateTime,PP_Remark)values
+		(#{congressID},#{agendaID},#{topicID},#{fileID},#{staffID},#{isOpen},#{text},#{x},#{y},#{fontSize},#{pageNum},#{fontColor},#{fontWeight},#{lineAmount},#{falseID},#{createTime},#{remark})
+	</insert>
+	
+	<!-- 按照伪id查询数据 -->
+	<select id="findFalseIDList" parameterType="java.lang.String" resultMap="PersoncongressTextResultMap">
+		select PP_ID,PP_CongressID,PP_AgendaID,PP_TopicID,PP_StaffID,PP_FileID,PP_IsOpen,PP_Text,PP_X,PP_Y,PP_FontSize,PP_PageNum,
+		PP_FontColor,PP_FontWeight,PP_FalseID,PP_LineAmount,PP_UpdateTime,PP_CreateTime,PP_Remark
+		 from t_personcongressText where PP_FalseID = #{falseid}
+	</select>
+	
+</mapper>

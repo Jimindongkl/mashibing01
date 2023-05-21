@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.commonDao.SysAddDao" >
+    <resultMap id="SysAddResultMap" type="org.ld.model.commonModel.SysAdd" >
+        <id column="SYS_ID" property="id" jdbcType="INTEGER" />
+        <result column="SYS_topicType" property="topicType" jdbcType="INTEGER" />
+        <result column="SYS_speakMode" property="speakMode" jdbcType="INTEGER" />
+        <result column="SYS_voteSpecies" property="voteSpecies" jdbcType="INTEGER" />
+        <result column="SYS_voteMethod" property="voteMethod" jdbcType="INTEGER" />
+        <result column="SYS_voteBaseNum" property="voteBaseNum" jdbcType="INTEGER" />
+        <result column="SYS_passRate" property="passRate" jdbcType="INTEGER" />
+        <result column="SYS_showMode" property="showMode" jdbcType="INTEGER" />
+        <result column="SYS_buttonType" property="buttonType" jdbcType="INTEGER" />
+        <result column="SYS_buttonOneName" property="buttonOneName" jdbcType="VARCHAR" />
+        <result column="SYS_buttonTwoName" property="buttonTwoName" jdbcType="VARCHAR" />
+        <result column="SYS_buttonThreeName" property="buttonThreeName" jdbcType="VARCHAR" />
+        <result column="SYS_buttonFourName" property="buttonFourName" jdbcType="VARCHAR" />
+        <result column="SYS_buttonFiveName" property="buttonFiveName" jdbcType="VARCHAR" />
+        <result column="SYS_createTime" property="createTime" jdbcType="DATE" />
+        <result column="SYS_updateTime" property="updateTime" jdbcType="DATE" />
+    </resultMap>
+	
+	<!-- 查询议题追加状态-->
+	<select id="findSysAddModel" resultMap="SysAddResultMap">
+	select SYS_ID,SYS_topicType,SYS_speakMode,SYS_voteSpecies,SYS_voteMethod,SYS_voteBaseNum,
+	SYS_passRate,SYS_showMode,SYS_buttonType,SYS_buttonOneName,SYS_buttonTwoName,SYS_buttonThreeName,SYS_buttonFourName,
+	SYS_buttonFiveName,SYS_createTime,SYS_updateTime
+	from t_sysAdd
+	</select>
+	
+	<!-- 修改议题追加状态 -->
+	<update id="updateSysAddModel" parameterType="org.ld.model.commonModel.SysAdd">
+		update t_sysAdd set SYS_topicType = #{topicType},SYS_speakMode= #{speakMode},SYS_voteSpecies= #{voteSpecies},SYS_voteMethod= #{voteMethod},SYS_voteBaseNum= #{voteBaseNum},
+		SYS_passRate= #{passRate},SYS_showMode= #{showMode},SYS_buttonType= #{buttonType},SYS_buttonOneName= #{buttonOneName},SYS_buttonTwoName= #{buttonTwoName},
+		SYS_buttonThreeName= #{buttonThreeName},SYS_buttonFourName= #{buttonFourName},SYS_buttonFiveName= #{buttonFiveName}, SYS_updateTime= #{updateTime}
+		where SYS_ID = #{id}
+	</update>
+	
+	
+
+</mapper>

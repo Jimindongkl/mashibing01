@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.congressDao.CongressPersonDao" >
+ 
+  <resultMap id="CongressPersonResultMap" type="org.ld.model.congressModel.CongressPerson">
+    <id column="CP_ID" property="id" jdbcType="INTEGER" />
+    <result column="CP_CongressID" property="congressID" jdbcType="INTEGER" />
+    <result column="CP_StaffID" property="staffInfo.id" jdbcType="INTEGER" />
+    <result column="CP_CardType" property="cardType" jdbcType="INTEGER" />
+    <result column="CP_CodeNum" property="codeNum" jdbcType="VARCHAR" />
+    <result column="CP_ReportPower" property="reportPower" jdbcType="INTEGER" />
+    <result column="CP_VotePower" property="votePower" jdbcType="INTEGER" />
+    <result column="CP_SpeakPower" property="speakPower" jdbcType="INTEGER" />
+    <result column="CP_FirstSpeakPower" property="firstSpeakPower" jdbcType="INTEGER" />
+    <result column="CP_CallPower" property="callPower" jdbcType="INTEGER" />
+    <result column="CP_SearchPower" property="searchPower" jdbcType="INTEGER" />
+    <result column="CP_Remark" property="remark" jdbcType="VARCHAR" />
+    <result column="CP_Xpoint" property="xpoint" jdbcType="INTEGER" />
+    <result column="CP_Ypoint" property="ypoint" jdbcType="INTEGER" />
+    <result column="CP_SeatID" property="seatID" jdbcType="INTEGER" />
+    <result column="CP_SeatArea" property="seatArea" jdbcType="VARCHAR" />
+    <result column="CP_Status" property="status" jdbcType="INTEGER" />
+    <result column="CP_CheckState" property="checkState" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <!-- 查询跟会议绑定的人员 -->
+  <select id="getCongressPersonList" parameterType="org.ld.model.congressModel.CongressPerson" resultType="org.ld.vo.CongressPersonSeatUnitVo">
+	 SELECT
+		w.*
+	FROM
+		(
+			SELECT
+				b.CP_ID id,
+				a.st_Num num,
+				a.st_Name name,
+				a.st_ViceCardNum viceCardNum,
+				a.st_CategoryID staffCategoryID,
+				a.st_GroupID staffGroupID,
+				c.gr_Name staffGroupName,
+				g.ca_Name categoryName,
+				b.CP_Status status,
+				b.CP_ReportPower reportPower,
+				b.CP_VotePower votePower,
+				b.CP_SpeakPower speakPower,
+				b.CP_FirstSpeakPower firstSpeakPower,
+				b.CP_CallPower callPower,
+				b.CP_Xpoint rowId,
+				b.CP_Ypoint columnId
+			FROM
+				t_congressperson b
+			LEFT JOIN t_staffinfo a ON a.id = b.CP_StaffID
+			LEFT JOIN t_staffcategory  g On  g.id = a.st_CategoryID
+			LEFT JOIN t_staffgroup  c On  c.id = a.st_GroupID
+			where b.CP_CongressID = #{congressID}
+		) w
+  </select>
+  
+  <!-- 增加绑定会议的参会人员 -->
+  <insert id="addCongressPerson" parameterType="org.ld.model.congressModel.CongressPerson">
+  insert into t_congressperson (CP_CongressID,CP_StaffID,CP_ReportPower,CP_VotePower,
+  CP_SpeakPower,CP_FirstSpeakPower,CP_CallPower,CP_SearchPower,CP_Remark,CP_Status)values
+  (#{congressID},#{staffInfo.id},#{reportPower},#{votePower},#{speakPower},#{firstSpeakPower},
+  #{callPower},#{searchPower},#{remark},#{status})
+  </insert>
+  
+  <!--会议人员的回显 -->
+  <select id="findCongressPersonByID" parameterType="org.ld.model.congressModel.CongressPerson"  resultType="java.util.Map">
+   SELECT
+		w.*
+	FROM
+		(
+			SELECT
+				a.id  staffinfoID,
+				a.st_Num num,
+				a.st_CategoryID categoryID,
+				a.st_GroupID  groupID,
+				st_WorkUnit  workUnit,
+				st_Phone    phone,
+				st_ViceCardNum  viceCardNum,
+				st_ViceCardNumA  viceCardNumA,
+				st_Remarks 	stRemarks,
+				st_Enabled enabled,
+				st_PartyID partyID,
+				st_Image  image,
+				a.st_Name name,
+				st_Sex sex,
+				st_NationID  nationID,
+				st_Job 	job,
+				st_CardNum	cardNum,
+				b.CP_ID		congressPersonID,
+				b.CP_Remark apRemark,
+				b.CP_Status status,
+				b.CP_ReportPower reportPower,
+				b.CP_VotePower votePower,
+				b.CP_SpeakPower speakPower,
+				b.CP_FirstSpeakPower firstSpeakPower,
+				b.CP_CallPower callPower,
+				b.CP_SearchPower searchPower
+			FROM
+				t_congressperson b
+			LEFT JOIN t_staffinfo a ON a.id = b.CP_StaffID
+			where CP_ID = #{id}
+		) w
+  </select>
+  
+  <!-- 修改CongressPerson -->
+  <update id="updateCongressPerson" parameterType="org.ld.model.congressModel.CongressPerson">
+	update t_congressperson set
+		CP_ReportPower = #{reportPower},
+		CP_VotePower = #{votePower},
+		CP_SpeakPower = #{speakPower},
+		CP_FirstSpeakPower = #{firstSpeakPower},
+		CP_CallPower = #{callPower},
+		CP_SearchPower = #{searchPower},
+		CP_Remark = #{remark},
+		CP_Status = #{status}
+		where CP_ID = #{id}
+  </update>
+  
+  <!-- 批量删除(解绑)会议绑定参会人员 -->
+  <delete id="deleteCongressPersons">
+		delete from t_congressperson where CP_ID in 
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+  </delete>
+  
+  <!-- 批量绑定会议绑定参会人员 -->
+  <insert id="addBatchCongressPerson" useGeneratedKeys="true" parameterType="java.util.List" >
+	       insert into
+	           t_congressperson (CP_CongressID,CP_StaffID,CP_ReportPower,CP_VotePower,
+  CP_SpeakPower,CP_FirstSpeakPower,CP_CallPower,CP_SearchPower,CP_Xpoint,CP_Ypoint,CP_Status,CP_SeatID,
+  CP_SeatArea,CP_Remark)
+	       values
+	       <foreach collection="list" item="item"  separator="," >
+	           (#{item.congressID},#{item.staffID},#{item.reportPower},#{item.votePower},#{item.speakPower},#{item.firstSpeakPower},
+  #{item.callPower},#{item.searchPower},#{item.xpoint},#{item.ypoint},#{item.status},#{item.seatID},#{item.seatArea},#{item.remark})
+	       </foreach>
+	</insert>
+	
+	<!-- 查询会议下的人员id集合 -->
+	<select id="findCongressPersonIDs"  parameterType="java.lang.Integer" resultType="java.lang.Integer">
+	select CP_StaffID from t_congressperson where CP_CongressID = #{value}
+	</select>
+	
+	<select id="getIDSCongressPersonList" resultMap="CongressPersonResultMap">
+	select 
+	CP_CongressID,
+    CP_StaffID,
+    CP_CardType,
+    CP_CodeNum,
+    CP_ReportPower,
+    CP_VotePower,
+    CP_SpeakPower,
+    CP_FirstSpeakPower,
+    CP_CallPower,
+    CP_SearchPower,
+    CP_Remark,
+    CP_Xpoint,
+    CP_Ypoint,
+    CP_SeatID,
+    CP_SeatArea,
+    CP_Status,
+    CP_CheckState
+	from t_congressperson where CP_ID in
+	<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+	</select>
+  
+</mapper>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.webSocketDao.WebSocketClientDao" >
+
+    <!-- 申请发言人列表 -->
+    <select id="getApplyPeople" resultType="org.ld.model.webSocketModel.WebSocketClientModel" >
+     SELECT
+          SR_ID,
+          SR_AgendaID,
+          SR_AgendaStaffID,
+          SR_ApplyTime,
+          SR_AginSpeak,
+          SR_CreateTime,
+          SR_Remark,
+          SR_SeatID
+        FROM t_speakrecord WHERE SR_ApplyTime IS TRUE AND SR_StartTime IS NULL
+        ORDER BY SR_ID ASC;
+  </select>
+    <!-- 增加 申请发言人记录 -->
+    <select id="insertApplyInformation" resultType="org.ld.model.webSocketModel.WebSocketClientModel" parameterType="org.ld.model.webSocketModel.WebSocketClientModel">
+    INSERT INTO t_speakrecord
+            (
+             SR_AgendaStaffID,
+             SR_AgendaID,
+             SR_ApplyTime,
+             SR_AginSpeak,
+             SR_CreateTime,
+             SR_Remark,
+             SR_SeatID)
+VALUES (
+        (SELECT AP_ID FROM t_agendaperson WHERE AP_SeatID = #{SR_AgendaStaffID} AND AP_AgendaID = (SELECT Ag_ID FROM t_agenda WHERE Ag_CongressID = (SELECT id FROM t_congress WHERE co_Status = 1) AND Ag_Status = 1)),
+        (SELECT Ag_ID FROM t_agenda WHERE Ag_CongressID = (SELECT id FROM t_congress WHERE co_Status = 1) AND Ag_Status = 1),
+        #{SR_ApplyTime},
+        #{SR_AginSpeak},
+        #{SR_CreateTime},
+        #{SR_Remark},
+        #{SR_SeatID});
+
+  </select>
+
+    <select id="getSpeakers" resultType="org.ld.model.webSocketModel.WebSocketClientModel" parameterType="org.ld.model.webSocketModel.WebSocketClientModel">
+        SELECT
+              SR_ID,
+              SR_AgendaID,
+              SR_AgendaStaffID,
+              SR_TopicID,
+              SR_ApplyTime,
+              SR_StartTime,
+              SR_AginSpeak,
+              SR_CreateTime,
+              SR_Remark,
+              SR_SeatID
+            FROM t_speakrecord
+            WHERE SR_StartTime IS TRUE AND SR_EndTime IS NULL
+            order by sr_id desc;
+    </select>
+    <!-- 有申请发言时间 还有对应的人员id 直接更改发言时间 -->
+    <select id="isAlreadySpeakOrNot" parameterType="java.lang.String" resultType="java.lang.Integer" >
+        SELECT COUNT(*) FROM t_speakrecord
+        WHERE SR_AgendaStaffID = (SELECT AP_ID FROM t_agendaperson WHERE AP_SeatID = #{value} AND AP_AgendaID = (SELECT Ag_ID FROM t_agenda WHERE Ag_CongressID = (SELECT id FROM t_congress WHERE co_Status = 1) AND Ag_Status = 1))
+        AND SR_ApplyTime IS TRUE AND SR_StartTime IS NULL
+    </select>
+    <!-- 增加 发言人 发言时间 -->
+    <insert id="insertStartTime" parameterType="org.ld.model.webSocketModel.WebSocketClientModel">
+        INSERT INTO t_speakrecord
+            (
+             SR_AgendaStaffID,
+             SR_AgendaID,
+             SR_StartTime,
+             SR_AginSpeak,
+             SR_SeatID
+             )
+VALUES (
+        (SELECT AP_ID FROM t_agendaperson WHERE AP_SeatID = #{SR_AgendaStaffID} AND AP_AgendaID = (SELECT Ag_ID FROM t_agenda WHERE Ag_CongressID = (SELECT id FROM t_congress WHERE co_Status = 1) AND Ag_Status = 1)),
+        (SELECT Ag_ID FROM t_agenda WHERE Ag_CongressID = (SELECT id FROM t_congress WHERE co_Status = 1) AND Ag_Status = 1),
+        #{SR_StartTime},
+        #{SR_AginSpeak},
+        #{SR_SeatID}
+        )
+    </insert>
+    <!-- 更新 发言人 发言时间 -->
+    <update id="updateStartTime" parameterType="org.ld.model.webSocketModel.WebSocketClientModel">
+        UPDATE t_speakrecord
+            SET
+              SR_StartTime = #{SR_StartTime},
+              SR_AginSpeak = #{SR_AginSpeak}
+            WHERE SR_AgendaStaffID = (SELECT AP_ID FROM t_agendaperson WHERE AP_SeatID = #{SR_AgendaStaffID} AND AP_AgendaID = (SELECT Ag_ID FROM t_agenda WHERE Ag_CongressID = (SELECT id FROM t_congress WHERE co_Status = 1) AND Ag_Status = 1));
+    </update>
+    <!-- 是否二次发言 -->
+    <select id="isAginSpeak" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM t_speakrecord
+        WHERE SR_AgendaStaffID = (SELECT AP_ID FROM t_agendaperson WHERE AP_SeatID = #{value} AND AP_AgendaID = (SELECT Ag_ID FROM t_agenda WHERE Ag_CongressID = (SELECT id FROM t_congress WHERE co_Status = 1) AND Ag_Status = 1))
+        AND SR_StartTime IS TRUE
+    </select>
+    <!-- 更改结束发言时间 -->
+    <update id="updateEndTime" parameterType="org.ld.model.webSocketModel.WebSocketClientModel">
+        UPDATE t_speakrecord
+            SET SR_EndTime = #{SR_EndTime},
+            SR_TopicID = #{SR_TopicID}
+            WHERE SR_AgendaStaffID = (SELECT AP_ID FROM t_agendaperson WHERE AP_SeatID = #{SR_AgendaStaffID} AND AP_AgendaID = (SELECT Ag_ID FROM t_agenda WHERE Ag_CongressID = (SELECT id FROM t_congress WHERE co_Status = 1) AND Ag_Status = 1))
+    </update>
+    <!-- 根据记录id 删除记录 -->
+    <delete id="deleteSpeakRecordBySrId" parameterType="org.ld.model.webSocketModel.WebSocketClientModel">
+        DELETE
+        FROM t_speakrecord
+        WHERE SR_AgendaStaffID = (SELECT AP_ID FROM t_agendaperson WHERE AP_SeatID = #{SR_AgendaStaffID} AND AP_AgendaID = (SELECT Ag_ID FROM t_agenda WHERE Ag_CongressID = (SELECT id FROM t_congress WHERE co_Status = 1) AND Ag_Status = 1))
+              AND SR_AgendaID = #{SR_AgendaID};
+    </delete>
+
+    <select id="selectIsAlreadyAgenda" resultType="java.lang.String">
+SELECT
+      Ag_ID
+    FROM
+      t_agenda
+    WHERE Ag_CongressID =
+      (SELECT
+        id
+      FROM
+        t_congress
+      WHERE co_Status = 1)
+      AND Ag_Status = 1
+    </select>
+
+    <select id="searchFirstSpeakPower" parameterType="java.lang.String" resultType="java.lang.Integer">
+            SELECT AP_FirstSpeakPower FROM t_agendaperson WHERE AP_ID = #{value}
+    </select>
+</mapper>

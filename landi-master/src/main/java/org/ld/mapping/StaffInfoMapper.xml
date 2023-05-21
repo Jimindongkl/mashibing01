@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.StaffInfoDao" >
+  <resultMap id="StaffInfoResultMap" type="org.ld.model.StaffInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="st_Name" property="name" jdbcType="VARCHAR" />
+    <result column="st_Num" property="num" jdbcType="VARCHAR" />
+    <result column="ca_Name" property="staffCategory.categoryName" jdbcType="VARCHAR" />
+    <result column="st_CategoryID" property="staffCategory.id" jdbcType="INTEGER" />
+    <result column="gr_Name" property="staffGroup.groupName" jdbcType="VARCHAR" />
+    <result column="st_GroupID" property="staffGroup.id" jdbcType="INTEGER" />
+    <result column="st_Image" property="image" jdbcType="VARCHAR" />
+    <result column="st_WorkUnit" property="workUnit" jdbcType="VARCHAR" />
+    <result column="st_Sex" property="sex" jdbcType="INTEGER" />
+    <result column="st_Phone" property="phone" jdbcType="VARCHAR" />
+    <result column="st_CardNum" property="cardNum" jdbcType="VARCHAR" />
+    <result column="st_ViceCardNum" property="viceCardNum" jdbcType="VARCHAR" />
+    <result column="st_ViceCardNumA" property="viceCardNumA" jdbcType="VARCHAR" />
+    <result column="st_ViceCardNumB" property="viceCardNumB" jdbcType="VARCHAR" />
+    <result column="st_NationID" property="nation.id" jdbcType="INTEGER" />
+    <result column="st_PartyID" property="dictionary.id" jdbcType="INTEGER" />
+    <result column="NationName" property="nation.nationName" jdbcType="VARCHAR" />
+    <result column="dic_Name" property="dictionary.dicName" jdbcType="VARCHAR" />
+    <result column="st_Job" property="job" jdbcType="VARCHAR" />
+    <result column="st_Enabled" property="enabled" jdbcType="INTEGER" />
+    <result column="st_Remarks" property="remarks" jdbcType="VARCHAR" />
+    <result column="st_CreateTime" property="createTime" jdbcType="DATE" />
+    <result column="st_Updatetime" property="updatetime" jdbcType="DATE" />
+    <result column="st_Account" property="account" jdbcType="VARCHAR" />
+    <result column="st_PWD" property="password" jdbcType="VARCHAR" />
+    <result column="st_Wynum" property="wynum" jdbcType="VARCHAR" />
+    <result column="st_Serial" property="order" jdbcType="INTEGER" />
+    <result column="st_SpareA" property="spareA" jdbcType="VARCHAR" />
+    <result column="st_SpareB" property="spareB" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="StaffInfoId">
+		<where>
+			<!-- 根据人员类型的查询 -->
+			<if test="staffCategory.id >0 ">
+				 st_CategoryID=#{staffCategory.id}
+			</if>
+			<!-- 根据人员团组的查询 -->
+			<if test="staffGroup.id >0 ">
+				and st_GroupID=#{staffGroup.id}
+			</if>
+			<!-- 根据党派的查询 -->
+			<if test="dictionary.id >0 ">
+				and st_PartyID=#{dictionary.id}
+			</if>
+			<!-- 姓名的模糊查询 -->
+			<if test="name!=null and name!=''">
+				and st_Name like concat('%',#{name},'%')
+			</if>
+			<!-- 身份证的模糊查询 -->
+			<if test="cardNum!=null and cardNum!=''">
+				and st_CardNum like concat('%',#{cardNum},'%')
+			</if>
+		</where>
+	</sql>
+ 
+	<!-- 计算总条数 -->
+	<select id="getCount" parameterType="org.ld.model.StaffInfo" resultType="long">
+		select count(*) from t_staffinfo a
+		left join t_staffgroup b on b.id = a.st_GroupID
+		left join t_staffcategory c on c.id = a.st_CategoryID
+		left join t_dic_nation d on d.id = a.st_NationID
+		left join t_dictionary e on e.id = a.st_PartyID
+		<include refid="StaffInfoId"></include>
+	</select> 
+  
+	 <!-- 查询列表 -->
+	<select id="getStaffInfoPageList" parameterType="org.ld.model.StaffInfo" resultMap="StaffInfoResultMap">
+		select w.* from (
+		select	a.id,a.st_Name,a.st_Num,a.st_Image,a.st_WorkUnit,a.st_Sex,a.st_CategoryID,a.st_GroupID,
+		a.st_Phone,a.st_CardNum,a.st_ViceCardNum,a.st_ViceCardNumA,a.st_ViceCardNumB,
+		a.st_NationID,a.st_PartyID,a.st_Job,a.st_Enabled,a.st_Remarks,a.st_CreateTime,a.st_Updatetime,
+		a.st_Account,a.st_Wynum,a.st_Serial,a.st_SpareA,a.st_SpareB,
+		b.gr_Name,
+		c.ca_Name,
+		d.NationName,
+		e.dic_Name
+		from t_staffinfo a
+		left join t_staffgroup b on b.id = a.st_GroupID
+		left join t_staffcategory c on c.id = a.st_CategoryID
+		left join t_dic_nation d on d.id = a.st_NationID
+		left join t_dictionary e on e.id = a.st_PartyID
+		<include refid="StaffInfoId"></include>
+		)w
+		order by id asc
+		limit #{startPos},#{pageSize}
+	</select>
+	<!-- 增加参会人员 -->
+	<insert id="addStaffInfo" parameterType="org.ld.model.StaffInfo">
+		insert into t_staffinfo
+		(st_Name,st_Num,st_CategoryID,st_GroupID,st_Image,st_WorkUnit,st_Sex,
+		st_Phone,st_CardNum,st_ViceCardNum,st_ViceCardNumA,st_ViceCardNumB,
+		st_NationID,st_PartyID,st_Job,st_Enabled,st_Remarks,st_CreateTime,
+		st_Updatetime,st_Account,st_PWD,st_Wynum,st_Serial,st_SpareA,st_SpareB)
+	values(#{name},#{num},#{staffCategory.id},#{staffGroup.id},#{image},#{workUnit},#{sex},
+	#{phone},#{cardNum},#{viceCardNum},#{viceCardNumA},#{viceCardNumB},
+	#{nation.id},#{dictionary.id},#{job},#{enabled},#{remarks},#{createTime},
+	#{updatetime},#{account},#{password},#{wynum},#{order},#{spareA},#{spareB});
+	</insert>
+	
+	<!-- 批量增加 -->
+	<insert id="addBatch" useGeneratedKeys="true" parameterType="java.util.List" >
+	       insert into
+	           t_staffinfo (st_Num,st_Name,st_Sex,st_CategoryID,st_GroupID,st_Phone,st_WorkUnit,st_Job,st_NationID,st_PartyID,
+	           st_CardNum,st_Remarks,st_Enabled,st_CreateTime,st_Updatetime)
+	       values
+	       <foreach collection="list" item="item"  separator="," >
+	           (#{item.num},#{item.name},#{item.sex},#{item.staffCategoryId},#{item.staffGroupId},#{item.phone},#{item.workUnit},#{item.job},#{item.nationId},
+	           #{item.dictionaryId},#{item.cardNum},#{item.remarks},#{item.enabled},#{item.createTime},#{item.updatetime})
+	       </foreach>
+	</insert>
+	
+	<!-- 修改参会人员 -->
+	<update	id="updateStaffInfo" parameterType="org.ld.model.StaffInfo">
+	UPDATE t_staffinfo SET st_Name = #{name},st_Num = #{num},st_CategoryID = #{staffCategory.id},
+							st_GroupID = #{staffGroup.id},st_Image = #{image},st_WorkUnit = #{workUnit},
+							st_Sex = #{sex},st_Phone = #{phone},st_CardNum = #{cardNum},st_ViceCardNum = #{viceCardNum},
+							st_ViceCardNumA=#{viceCardNumA},st_ViceCardNumB=#{viceCardNumB},st_NationID = #{nation.id},
+							st_PartyID = #{dictionary.id},st_Job = #{job},st_Enabled = #{enabled},
+							st_Remarks = #{remarks},st_Updatetime = #{updatetime},st_Account = #{account},
+							st_Wynum = #{wynum},st_Serial = #{order},st_SpareA = #{spareA},st_SpareB = #{spareB}
+							where id=#{id}
+	</update>
+	<!-- 批量删除参会人员 -->
+	<delete id="deleteStaffInfo">
+		delete from t_staffinfo where id in 
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+	</delete>
+	
+	<!-- 无分页查询列表 -->
+	<select id="findStaffInfoAll" parameterType="org.ld.model.StaffInfo" resultMap="StaffInfoResultMap">
+		select w.* from (
+		select	a.id,a.st_Name,a.st_Num,a.st_Image,a.st_WorkUnit,a.st_Sex,
+		a.st_Phone,a.st_CardNum,a.st_ViceCardNum,a.st_ViceCardNumA,a.st_ViceCardNumB,
+		a.st_NationID,a.st_PartyID,a.st_Job,a.st_Enabled,a.st_Remarks,a.st_CreateTime,a.st_Updatetime,
+		a.st_Account,a.st_Wynum,a.st_Serial,a.st_SpareA,a.st_SpareB,
+		b.gr_Name,
+		c.ca_Name,
+		d.NationName,
+		e.dic_Name
+		from t_staffinfo a
+		left join t_staffgroup b on b.id = a.st_GroupID
+		left join t_staffcategory c on c.id = a.st_CategoryID
+		left join t_dic_nation d on d.id = a.st_NationID
+		left join t_dictionary e on e.id = a.st_PartyID
+		<include refid="StaffInfoId"></include>
+		)w
+		order by id asc
+	</select>
+	
+	<!-- 按人员类别查询人员类型和人员 -->
+	<select id="findStaffinfoLibraryList" parameterType="int" resultMap="StaffInfoResultMap">
+		SELECT s.id,s.st_Name  FROM	t_staffinfo s  WHERE	1 = 1	AND s.id IN (
+		SELECT t.SR_ID	FROM  t_staffrelation t	WHERE t.SR_SLID = #{id} )
+		order by s.id asc
+	</select>
+	
+	<!-- 有返回值增加参会人员 -->
+	<insert id="addStaffInfoResultID" parameterType="org.ld.model.StaffInfo" keyColumn="id" 
+     useGeneratedKeys="true" keyProperty="id">
+		insert into t_staffinfo
+		(st_Name,st_Num,st_CategoryID,st_GroupID,st_Image,st_WorkUnit,st_Sex,
+		st_Phone,st_CardNum,st_ViceCardNum,st_ViceCardNumA,st_ViceCardNumB,
+		st_NationID,st_PartyID,st_Job,st_Enabled,st_Remarks,st_CreateTime,
+		st_Updatetime,st_Account,st_PWD,st_Wynum,st_Serial,st_SpareA,st_SpareB)
+	values(#{name},#{num},#{staffCategory.id},#{staffGroup.id},#{image},#{workUnit},#{sex},
+	#{phone},#{cardNum},#{viceCardNum},#{viceCardNumA},#{viceCardNumB},
+	#{nation.id},#{dictionary.id},#{job},#{enabled},#{remarks},#{createTime},
+	#{updatetime},#{account},#{password},#{wynum},#{order},#{spareA},#{spareB});
+	</insert>
+	
+	<!-- 无分页的条件查询 -->
+	<select id="getStaffInfoList" parameterType="org.ld.model.StaffInfo" resultMap="StaffInfoResultMap">
+	select w.* from (
+		select	a.id,a.st_Name,a.st_Num,a.st_Image,a.st_WorkUnit,a.st_Sex,a.st_CategoryID,a.st_GroupID,
+		a.st_Phone,a.st_CardNum,a.st_ViceCardNum,a.st_ViceCardNumA,a.st_ViceCardNumB,
+		a.st_NationID,a.st_PartyID,a.st_Job,a.st_Enabled,a.st_Remarks,a.st_CreateTime,a.st_Updatetime,
+		a.st_Account,a.st_Wynum,a.st_Serial,a.st_SpareA,a.st_SpareB,
+		b.gr_Name,
+		c.ca_Name,
+		d.NationName,
+		e.dic_Name
+		from t_staffinfo a
+		left join t_staffgroup b on b.id = a.st_GroupID
+		left join t_staffcategory c on c.id = a.st_CategoryID
+		left join t_dic_nation d on d.id = a.st_NationID
+		left join t_dictionary e on e.id = a.st_PartyID
+		<include refid="StaffInfoId"></include>
+		)w
+		order by id asc
+	</select>
+	
+	<!--查询人员类别绑定基础人员-->
+	<select id="findstaffCategoryIsStaffInfo" parameterType="java.lang.Integer" resultMap="StaffInfoResultMap">
+	select	a.id,a.st_Name,a.st_Num,a.st_Image,a.st_WorkUnit,a.st_Sex,a.st_CategoryID,a.st_GroupID,
+		a.st_Phone,a.st_CardNum,a.st_ViceCardNum,a.st_ViceCardNumA,a.st_ViceCardNumB,
+		a.st_NationID,a.st_PartyID,a.st_Job,a.st_Enabled,a.st_Remarks,a.st_CreateTime,a.st_Updatetime,
+		a.st_Account,a.st_Wynum,a.st_Serial,a.st_SpareA,a.st_SpareB
+		from t_staffinfo a  where a.st_CategoryID = #{value}
+	</select>
+	
+	<!--查询人员团组绑定基础人员-->
+	<select id="findStaffGroupIsStaffInfo" parameterType="java.lang.Integer" resultMap="StaffInfoResultMap">
+	select	a.id,a.st_Name,a.st_Num,a.st_Image,a.st_WorkUnit,a.st_Sex,a.st_CategoryID,a.st_GroupID,
+		a.st_Phone,a.st_CardNum,a.st_ViceCardNum,a.st_ViceCardNumA,a.st_ViceCardNumB,
+		a.st_NationID,a.st_PartyID,a.st_Job,a.st_Enabled,a.st_Remarks,a.st_CreateTime,a.st_Updatetime,
+		a.st_Account,a.st_Wynum,a.st_Serial,a.st_SpareA,a.st_SpareB
+		from t_staffinfo a  where a.st_GroupID = #{value}
+	</select>
+	
+	<!-- 查看密码是否正确 -->
+	<select id="getUserByUserName" parameterType="java.lang.String" resultMap="StaffInfoResultMap">
+		select	a.id,a.st_Name,a.st_Num,a.st_Image,a.st_WorkUnit,a.st_Sex,a.st_CategoryID,a.st_GroupID,
+		a.st_Phone,a.st_CardNum,a.st_ViceCardNum,a.st_ViceCardNumA,a.st_ViceCardNumB,
+		a.st_NationID,a.st_PartyID,a.st_Job,a.st_Enabled,a.st_Remarks,a.st_CreateTime,a.st_Updatetime,
+		a.st_Account,a.st_PWD,a.st_Wynum,a.st_Serial,a.st_SpareA,a.st_SpareB
+		from t_staffinfo a  where a.st_Account = #{value}
+	</select>
+	
+</mapper>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.CardDetailDao" >
+    <resultMap id="CardDetailResultMap" type="org.ld.model.CardDetail" >
+        <id column="id" property="Id" jdbcType="INTEGER" />
+        <result column="cd_StaffID" property="staffID" jdbcType="VARCHAR" />
+        <result column="cd_TypeID" property="TypeID" jdbcType="VARCHAR" />
+        <result column="cd_CardCode" property="CardCode" jdbcType="VARCHAR" />
+        <result column="cd_IsEnabled" property="isEnabled" jdbcType="INTEGER" />
+        <result column="cd_Num" property="cd_Num" jdbcType="INTEGER" />
+        <result column="cd_Remark" property="Remark" jdbcType="VARCHAR" />
+        <result column="cd_CongressID" property="CongressID" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <!-- 查询证卡全部信息 -->
+    <select id="getCardDetails" parameterType="org.ld.model.CardDetail" resultMap="CardDetailResultMap">
+		SELECT
+		id,
+		cd_StaffID,
+		cd_TypeID,
+		cd_CardCode,
+		cd_IsEnabled,
+		cd_Num,
+		cd_Remark,
+		cd_CongressID
+		FROM t_carddetail
+	</select>
+
+    <!-- 按条件查询 证卡信息-->
+    <select id="getCardDetailsByConditions" parameterType="org.ld.model.CardDetail"  resultMap="CardDetailResultMap">
+				SELECT
+				id,
+				cd_StaffID,
+				cd_TypeID,
+				cd_CardCode,
+				cd_IsEnabled,
+				cd_Num,
+				cd_Remark,
+				cd_CongressID
+				FROM t_carddetail
+				where 1=1
+				 <if test="StaffID != null and StaffID !=''">
+                and cd_StaffID = #{StaffID}
+	            </if>
+	            <if test="CongressID != null and CongressID != ''">
+	              and cd_CongressID = #{CongressID}
+	            </if>
+    </select>
+    <!-- 单个增加证卡信息 -->
+    <insert id="addCardDetail" parameterType="org.ld.model.CardDetail">
+		INSERT INTO t_carddetail
+            (
+             cd_StaffID,
+             cd_TypeID,
+             cd_CardCode,
+             cd_IsEnabled,
+             cd_Num,
+             cd_Remark,
+             cd_CongressID)
+	VALUES (
+			#{StaffID},
+			#{TypeID},
+			#{CardCode},
+			#{IsEnabled},
+			#{cd_Num},
+			#{Remark},
+			#{CongressID});
+	</insert>
+	<!-- 批量添加 证卡信息 TODO-->
+	<insert id="addCardDetails" parameterType="java.util.List">
+		INSERT INTO t_carddetail
+		(
+		cd_StaffID,
+		cd_TypeID,
+		cd_CardCode,
+		cd_IsEnabled,
+		cd_Num,
+		cd_Remark,
+		cd_CongressID)
+		VALUES
+		<foreach collection="list" item="item"  separator="," >
+		(
+		#{cd_StaffID},
+		#{cd_TypeID},
+		#{cd_CardCode},
+		#{cd_IsEnabled},
+		#{cd_Num},
+		#{cd_Remark},
+		#{cd_CongressID})
+		</foreach>
+
+	</insert>
+
+    <!-- 修改证卡信息 -->
+    <update id="modifyCardDetail" parameterType="org.ld.model.CardDetail">
+	UPDATE t_carddetail
+		SET
+		  cd_StaffID = #{StaffID},
+		  cd_TypeID = #{TypeID},
+		  cd_CardCode = #{CardCode},
+		  cd_IsEnabled = #{IsEnabled},
+		  cd_Num = #{cd_Num},
+		  cd_Remark = #{Remark},
+		  cd_CongressID = #{CongressID}
+		WHERE id = #{Id};
+	</update>
+
+    <!-- 批量删除-->
+	<delete id="deleteCardDetail" parameterType="java.util.Arrays">
+		delete from t_carddetail where id in
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+		;
+	</delete>
+
+</mapper>

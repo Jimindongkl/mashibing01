@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.fileDao.CongressBulletinFileDao">
+	<resultMap id="CongressBulletinFileResultMap" type="org.ld.model.fileModel.CongressBulletinFile">
+	  <id column="CB_ID" property="cbID" jdbcType="INTEGER"/>
+	  <result column="CB_CongressID" property="congressID" jdbcType="INTEGER" />
+	  <result column="CB_Type" property="cbType" jdbcType="INTEGER" />
+	  <result column="CB_Name" property="cbName" jdbcType="VARCHAR" />
+	  <result column="CB_Path" property="cbPath" jdbcType="VARCHAR" />
+	  <result column="CB_PicPath" property="cbPicPath" jdbcType="VARCHAR" />
+	  <result column="CB_TrueFilePath" property="trueFilePath" jdbcType="VARCHAR" />
+	  <result column="CB_Size" property="cbSize" jdbcType="FLOAT" />
+	  <result column="CB_Serial" property="cbSerial" jdbcType="BIGINT" />
+	  <result column="CB_CreateTime" property="cbCreateTime" jdbcType="DATE" />
+	  <result column="CB_IsEnabled" property="cbIsEnabled" jdbcType="INTEGER" />
+	  <result column="CB_Remark" property="cbRemark" jdbcType="VARCHAR" />
+	   <result column="FT_TypeName" property="typeName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 按会议的id查询会议下的全部文件 -->
+	<select id="findCongressIDToCongressBulletinFiles" parameterType="org.ld.model.fileModel.CongressBulletinFile" resultMap="CongressBulletinFileResultMap">
+	select
+	 CB_ID,CB_CongressID,CB_Type,CB_Name,CB_Path,CB_PicPath,CB_TrueFilePath,CB_Size,CB_Serial,CB_CreateTime,CB_IsEnabled,CB_Remark,b.FT_TypeName typeName
+	from t_congressbulletin a
+	LEFT JOIN t_filetype b on a.CB_Type = b.FT_ID 
+	where CB_CongressID = #{congressID}
+	order by CB_Serial asc
+	</select>
+	
+	<!-- 查询会议文件中最大的序号 -->
+	<select id="getMaxCongressBulletinFileOrder" resultType="java.lang.Integer">
+	SELECT MAX(CB_Serial) FROM t_congressbulletin
+	</select>
+	
+	<!-- 批量增加会议文件 -->
+	<insert id="addBatchCongressBulleFiles" useGeneratedKeys="true" parameterType="java.util.List" >
+	       insert into
+	           t_congressbulletin (CB_CongressID,CB_Type,CB_Name,CB_Path,CB_PicPath,CB_TrueFilePath,CB_Size,CB_Serial,CB_CreateTime,CB_IsEnabled,CB_Remark)
+	       values
+	       <foreach collection="list" item="item"  separator="," >
+	           (#{item.congressID},#{item.cbType},#{item.cbName},#{item.cbPath},#{item.cbPicPath},#{item.trueFilePath},#{item.cbSize},
+	           #{item.cbSerial},#{item.cbCreateTime},#{item.cbIsEnabled},#{item.cbRemark})
+	       </foreach>
+	</insert>
+	
+	<!-- 单个增加会议文件 -->
+	<insert id="addCongressBulleFile"  parameterType="org.ld.model.fileModel.CongressBulletinFile" >
+	       insert into
+	           t_congressbulletin (CB_CongressID,CB_Type,CB_Name,CB_Path,CB_PicPath,CB_TrueFilePath,CB_Size,CB_Serial,CB_CreateTime,CB_IsEnabled,CB_Remark)
+	       values
+	           (#{congressID},#{cbType},#{cbName},#{cbPath},#{cbPicPath},#{trueFilePath},#{cbSize},
+	           #{cbSerial},#{cbCreateTime},#{cbIsEnabled},#{cbRemark})
+	</insert>
+	
+	<select id="findCongressBulletinFileName" resultMap="CongressBulletinFileResultMap">
+		select
+	 CB_ID,CB_CongressID,CB_Type,CB_Name,CB_Path,CB_PicPath,CB_TrueFilePath,CB_Size,CB_Serial,CB_CreateTime,CB_IsEnabled,CB_Remark
+	from t_congressbulletin
+		where CB_ID in
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+	</select>
+	
+	<!-- 删除数据库的中数据 -->
+	<delete id="deleteCongresBulletinFiles" >
+	delete from t_congressbulletin where CB_ID in 
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+	</delete>
+	
+	<!-- 批量修改文件的序号 -->
+	<update id="updateBatchCongresBulletinFiles" parameterType="java.util.List">
+		update t_congressbulletin
+   	 <trim prefix="set" suffixOverrides=",">
+        <trim prefix="CB_Serial =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.cbSerial!=null">
+              when CB_ID=#{item.cbID} then #{item.cbSerial}
+             </if>
+             </foreach>
+        </trim>
+    </trim>
+    where CB_ID in
+    <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+        #{item.cbID,jdbcType=INTEGER}
+    </foreach>
+	</update>
+	
+	<!-- 查询当前会议的日程及分组文件 -->
+	<select id="findPaperlessNowCongressScheduleFile" resultMap="CongressBulletinFileResultMap">
+		select
+	 CB_ID,CB_CongressID,CB_Type,CB_Name,CB_Path,CB_PicPath,CB_TrueFilePath,CB_Size,CB_Serial,CB_CreateTime,CB_IsEnabled,CB_Remark,b.FT_TypeName typeName
+	from t_congressbulletin a
+	LEFT JOIN t_filetype b on a.CB_Type = b.FT_ID 
+	where   CB_CongressID = #{congressId} 
+		and CB_Type = #{fileType}
+	order by CB_Serial asc
+	</select>
+	
+	
+	
+</mapper>

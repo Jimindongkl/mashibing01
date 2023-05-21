@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.paperlessDao.PersoncongressFileDao">
+
+	<resultMap id="PersoncongressFileResultMap" type="org.ld.model.paperlessModel.PersoncongressFile">
+	  <id column="PF_ID" property="pFID" jdbcType="INTEGER" />
+	  <result column="PF_CongessID" property="congressID" jdbcType="INTEGER" />
+	  <result column="PF_AgendaID" property="agendaID" jdbcType="INTEGER" />
+	  <result column="PF_TopicID" property="topicID" jdbcType="INTEGER" />
+	  <result column="PF_FileID" property="fileID" jdbcType="INTEGER" />
+	  <result column="PF_StaffID" property="staffID" jdbcType="INTEGER" />
+	  <result column="PF_FilePath" property="filePath" jdbcType="VARCHAR" />
+	  <result column="PF_PicPath" property="picPath" jdbcType="DATE" />
+	  <result column="PF_X" property="x" jdbcType="DOUBLE" />
+	  <result column="PF_Y" property="y" jdbcType="DOUBLE" />
+	  <result column="PF_FontColor" property="fontColor" jdbcType="VARCHAR" />
+	  <result column="PF_PageNum" property="pageNum" jdbcType="INTEGER" />
+	  <result column="PF_FontWeight" property="fontWeight" jdbcType="VARCHAR" />
+	  <result column="PF_ListArr" property="listArr" jdbcType="VARCHAR" />
+	   <result column="PF_FalseID" property="falseID" jdbcType="VARCHAR" />
+	  <result column="PF_CreateTime" property="createTime" jdbcType="DATE" />
+	  <result column="PF_Remark" property="remark" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="PersoncongressFileId">
+		<where>
+			<!-- 根据会议id查询 -->
+			<if test=" congressID>0 ">
+				 PF_CongessID=#{congressID}
+			</if>
+			<!-- 根据日程id的查询 -->
+			<if test="agendaID >0 ">
+				and PF_AgendaID=#{agendaID}
+			</if>
+			<!-- 根据id的查询 -->
+			<if test="topicID >0 ">
+				and PF_TopicID=#{topicID}
+			</if>
+			<!-- 根据人员id的查询 -->
+			<if test="staffID >0 ">
+				and PF_StaffID=#{staffID}
+			</if>
+			<!-- 根据文件id的查询 -->
+			<if test="fileID!=null and fileID!=''">
+				and PF_FileID=#{fileID}
+			</if>
+			<!-- 根据文件页码的查询 -->
+			<if test="pageNum >0 ">
+				and PF_PageNum=#{pageNum}
+			</if>
+		</where>
+	</sql>
+	
+	<!-- 增加手写批注 -->
+	<insert id="addOneselfFilePiZhu" parameterType="org.ld.model.paperlessModel.PersoncongressFile" keyColumn="PF_ID" 
+     useGeneratedKeys="true" keyProperty="pFID">
+		insert into t_personcongressfile (PF_CongessID,PF_AgendaID,PF_TopicID,PF_FileID,PF_StaffID,PF_FilePath,PF_PicPath,PF_X,PF_Y,PF_FontColor,PF_PageNum,PF_FontWeight,PF_ListArr,PF_FalseID,PF_CreateTime,PF_Remark) values
+							(#{congressID},#{agendaID},#{topicID},#{fileID},#{staffID},#{filePath},#{picPath},#{x},#{y},#{fontColor},#{pageNum},#{fontWeight},#{listArr},#{falseID},#{createTime},#{remark})
+	</insert>
+	
+	<!-- 查看个人的手写批注 -->
+	<select id="findOneselfFilePiZhu" parameterType="org.ld.model.paperlessModel.PersoncongressFile" resultMap="PersoncongressFileResultMap">
+		select PF_ID,PF_CongessID,PF_AgendaID,PF_TopicID,PF_FileID,PF_StaffID,PF_FilePath,PF_PicPath,PF_CreateTime,PF_X,PF_Y,PF_FontColor,PF_PageNum,PF_FontWeight,PF_ListArr,PF_FalseID,PF_Remark
+		 from t_personcongressfile
+		<include refid="PersoncongressFileId"></include>
+	</select>
+	
+	<!-- 查看个人的手写批注文件路径 -->
+	<select id="findOneselfFilePiZhuPath" resultMap="PersoncongressFileResultMap">
+	select PF_ID,PF_CongessID,PF_AgendaID,PF_FileID,PF_TopicID,PF_StaffID,PF_FilePath,PF_PicPath,PF_X,PF_Y,PF_FontColor,PF_PageNum,PF_FontWeight,PF_ListArr,PF_FalseID,PF_CreateTime,PF_Remark
+		 from t_personcongressfile  where  PF_ID in 
+		 <foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+	</select>
+	
+	<!-- 删除个人的手写批注(数据库) -->
+	<delete id="delectOneselfFilePiZhu">
+		delete from t_personcongressfile where PF_ID  in 
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+	</delete>
+	
+	<!-- 修改个人手写批注 -->
+	<update id="updateOneselfFilePiZhu" parameterType="org.ld.model.paperlessModel.PersoncongressFile">
+	update  t_personcongressfile set
+		  PF_CongessID = #{congressID},
+		  PF_AgendaID = #{agendaID},
+		  PF_TopicID = #{topicID},
+		  PF_FileID = #{fileID},
+		  PF_StaffID = #{staffID},
+		  PF_FilePath = #{filePath},
+		  PF_PicPath = #{picPath},
+		  PF_X = #{x},
+		  PF_Y = #{y},
+		  PF_FontColor = #{fontColor},
+		  PF_PageNum = #{pageNum},
+		  PF_FontWeight = #{fontWeight},
+		  PF_ListArr = #{listArr},
+		  PF_CreateTime = #{createTime},
+		  PF_Remark = #{remark}
+			where PF_ID = #{pFID}
+	</update>
+
+   
+</mapper>

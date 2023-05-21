@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.StaffRelationDao" >
+	<resultMap id="StaffRelationResultMap" type="org.ld.model.StaffRelation" >
+	  <id column="SR_ID" property="id" jdbcType="INTEGER" />
+	  <result column="SR_SLID" property="sLID" jdbcType="INTEGER" />
+	  <result column="SR_StaffInfoID" property="staffInfoID" jdbcType="INTEGER" />
+	  <result column="SR_CreateTime" property="createTime" jdbcType="DATE" />
+	  <result column="SR_Remark" property="remark" jdbcType="VARCHAR" />
+	  <result column="SR_Spare" property="spare" jdbcType="VARCHAR" />
+	</resultMap>
+  
+	<!--按人员分类id查询 -->
+	<select id="queryStaffRelationList" parameterType="int" resultMap="StaffRelationResultMap">
+	select  SR_ID,SR_SLID,SR_StaffInfoID,SR_CreateTime,SR_Remark,SR_Spare from t_staffrelation where 
+	1=1 and SR_SLID = #{value}
+	</select>
+	 
+	 <!-- 增加基础人员与人员类别的关系 -->
+	<insert id="saveStaffCategoryInfos" useGeneratedKeys="true" parameterType="java.util.List">
+	insert into  t_staffrelation (SR_SLID,SR_StaffInfoID,SR_CreateTime) values
+	 <foreach collection="list" item="item"  separator="," >
+	    (#{item.sLID},#{item.staffInfoID},#{item.createTime})
+	 </foreach>
+	</insert>
+	
+	
+  
+	
+</mapper>

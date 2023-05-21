@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.congressDao.AgendaDao" >
+ 
+  <resultMap id="AgendaResultMap" type="org.ld.model.congressModel.Agenda">
+    <id column="Ag_ID" property="id" jdbcType="INTEGER" />
+    <result column="Ag_CongressID" property="congress.id" jdbcType="INTEGER" />
+    <result column="Ag_Name" property="agName" jdbcType="VARCHAR" />
+    <result column="Ag_RoomID" property="room.id" jdbcType="INTEGER" />
+    <result column="Ag_Content" property="content" jdbcType="VARCHAR" />
+    <result column="Ag_StartTime" property="startTime" jdbcType="TIMESTAMP" />
+    <result column="Ag_EndTime" property="endTime" jdbcType="TIMESTAMP" />
+    <result column="Ag_Type" property="agType" jdbcType="INTEGER" />
+    <result column="Ag_CheckInTime" property="checkInTime" jdbcType="DATE" />
+    <result column="Ag_CheckOverTime" property="checkOverTime" jdbcType="DATE" />
+    <result column="Ag_Serial" property="serial" jdbcType="INTEGER" />
+    <result column="Ag_SeatGraph" property="seatGraph" jdbcType="VARCHAR" />
+    <result column="Ag_CheckInType" property="checkInType" jdbcType="INTEGER" />
+    <result column="Ag_SeatType" property="seatType" jdbcType="INTEGER" />
+    <result column="Ag_CreateTime" property="createTime" jdbcType="DATE" />
+    <result column="Ag_UpdateTime" property="updateTime" jdbcType="DATE" />
+    <result column="Ag_Status" property="status" jdbcType="INTEGER" />
+    <result column="Ag_Remark" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <!-- 查询会议下议程的最大排序 -->
+  <select id="findMaxorder" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+  select Max(Ag_Serial) from t_agenda where Ag_CongressID = #{value}
+  </select>
+  
+  <!-- 在会议下增加议程 -->
+  <insert id="addAgenda" parameterType="org.ld.model.congressModel.Agenda">
+  	insert into t_agenda (Ag_CongressID,Ag_Name,Ag_RoomID,Ag_Content,Ag_StartTime,Ag_EndTime,Ag_Type,
+  	Ag_CheckInTime,Ag_CheckOverTime,Ag_Serial,Ag_SeatGraph,Ag_CheckInType,Ag_SeatType,Ag_CreateTime,Ag_UpdateTime,Ag_Status,Ag_Remark) 
+  	values(#{congress.id},#{agName},#{room.id},#{content},#{startTime},#{endTime},#{agType},#{checkInTime},#{checkOverTime},#{serial},#{seatGraph},
+  	#{checkInType},#{seatType},#{createTime},#{updateTime},#{status},#{remark})
+  </insert>
+  
+   <!-- 在会议下修改议程 -->
+  <update id="updateAgenda" parameterType="org.ld.model.congressModel.Agenda">
+  	UPDATE t_agenda SET Ag_Name=#{agName},
+  						Ag_RoomID=#{room.id},
+  						Ag_Content=#{content},
+  						Ag_StartTime=#{startTime},
+  						Ag_EndTime=#{endTime},
+  						Ag_Type=#{agType},
+  						Ag_Serial=#{serial},
+  						Ag_CheckInType=#{checkInType},
+  						Ag_SeatType=#{seatType},
+  						Ag_UpdateTime=#{updateTime},
+  						Ag_Remark=#{remark}
+  						where Ag_ID = #{id}
+  </update>
+  
+  <!-- 议程中的会议室的关联 -->
+  <select id="findAgendaAndRoom"  resultMap="AgendaResultMap">
+	select * from t_agenda t where   t.Ag_RoomID in 
+	<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+  </select>
+  
+  <!--删除议程  -->
+  <delete id="deleteAgenda">
+ 	delete from t_agenda where Ag_ID in 
+	<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+  </delete>
+  
+  <!-- 按会议id查询议程 -->
+  <select id="findAllAgenda" parameterType="java.lang.Integer" resultMap="AgendaResultMap">
+  select Ag_ID,Ag_CongressID,Ag_Name,Ag_RoomID,Ag_Content,Ag_StartTime,Ag_EndTime,Ag_Type,Ag_CheckInTime,
+  Ag_CheckOverTime,Ag_Serial,Ag_SeatGraph,Ag_CheckInType,Ag_SeatType,Ag_CreateTime,Ag_UpdateTime,Ag_Status,Ag_Remark
+   from t_agenda where Ag_CongressID = #{value}
+   order by Ag_Serial asc
+  </select>
+  
+  <!-- 按会议查询议程 -->
+   <select id="findCongresAgendasList" parameterType="org.ld.model.congressModel.Congress" resultMap="AgendaResultMap">
+  select Ag_ID,Ag_CongressID,Ag_Name,Ag_RoomID,Ag_Content,Ag_StartTime,Ag_EndTime,Ag_Type,Ag_CheckInTime,
+  Ag_CheckOverTime,Ag_Serial,Ag_SeatGraph,Ag_CheckInType,Ag_SeatType,Ag_CreateTime,Ag_UpdateTime,Ag_Status,Ag_Remark
+   from t_agenda where Ag_CongressID = #{id}
+   order by Ag_Serial asc
+  </select>
+  
+  <!-- 查询状态下召开议程的详细信息 -->
+  <select id="findPaperlessNowAgenda" parameterType="java.lang.Integer" resultMap="AgendaResultMap">
+   select Ag_ID,Ag_CongressID,Ag_Name,Ag_RoomID,Ag_Content,Ag_StartTime,Ag_EndTime,Ag_Type,Ag_CheckInTime,
+  	Ag_CheckOverTime,Ag_Serial,Ag_SeatGraph,Ag_CheckInType,Ag_SeatType,Ag_CreateTime,Ag_UpdateTime,Ag_Status,Ag_Remark
+   from t_agenda where Ag_Status = #{value}
+  </select>
+  
+ 	 <!-- 修改议程的状态 -->
+	<update id="uploadStatusAgenda" parameterType="org.ld.model.congressModel.Agenda">
+		UPDATE t_agenda SET
+						Ag_Status=#{status}
+				where Ag_ID = #{id}
+	</update>
+	
+	<!-- 查正在开始议程的同级所有议程 -->
+	<select id="findAgendaIdfindAgendas" parameterType="java.lang.Integer"  resultMap="AgendaResultMap">
+	select 
+	Ag_ID,Ag_CongressID,Ag_Name,Ag_RoomID,Ag_Content,Ag_StartTime,Ag_EndTime,Ag_Type,Ag_CheckInTime,
+  	Ag_CheckOverTime,Ag_Serial,Ag_SeatGraph,Ag_CheckInType,Ag_SeatType,Ag_CreateTime,Ag_UpdateTime,Ag_Status,Ag_Remark
+  	from t_agenda where Ag_CongressID in (select Ag_CongressID from t_agenda where Ag_ID = #{agendaId})
+	</select>
+	
+	<!-- 查询正在进行中的会议有几个 -->
+	<select id="findNotCurrentAgendaStatus" resultMap="AgendaResultMap">
+	select 
+	Ag_ID,Ag_CongressID,Ag_Name,Ag_RoomID,Ag_Content,Ag_StartTime,Ag_EndTime,Ag_Type,Ag_CheckInTime,
+  	Ag_CheckOverTime,Ag_Serial,Ag_SeatGraph,Ag_CheckInType,Ag_SeatType,Ag_CreateTime,Ag_UpdateTime,Ag_Status,Ag_Remark
+  	from t_agenda where  Ag_Status = #{status} and Ag_CongressID  NOT in (#{agendaId}) 
+	</select>
+	
+	<select id="findAgendaModel" parameterType="java.lang.Integer"  resultMap="AgendaResultMap">
+	select Ag_ID,Ag_CongressID,Ag_Name,Ag_RoomID,Ag_Content,Ag_StartTime,Ag_EndTime,Ag_Type,Ag_CheckInTime,
+  Ag_CheckOverTime,Ag_Serial,Ag_SeatGraph,Ag_CheckInType,Ag_SeatType,Ag_CreateTime,Ag_UpdateTime,Ag_Status,Ag_Remark
+   from t_agenda where Ag_ID = #{value}
+	</select>
+  
+  
+</mapper>

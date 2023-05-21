@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.webSocketDao.CCUFirestConnectDao" >
+
+    <!-- 根据设备id 查询设备基本信息-->
+    <select id="findDeviceInformation" resultType="org.ld.model.webSocketModel.CCUFirestConnectModel" parameterType="java.lang.String">
+    SELECT DU_ID ,DU_NetIPAddress ,
+        DU_NetSendPort ,DU_PassWayStartNum ,
+        DU_PassWayCount  FROM t_deviceused WHERE DU_ID = #{value};
+  </select>
+
+  <!-- 查询会议报到方式和就坐方式 -->
+  <select id="findIsRunning" resultType="org.ld.model.webSocketModel.CCUFirestConnectModel">
+    SELECT cg.id AS congressId,cg.co_CheckInType AS coCheckInType,cg.co_SeatMode AS coSeatMode
+        FROM t_congress cg WHERE co_Status = 1
+  </select>
+
+    <!-- 查询坐席单元信息 -->
+    <select id="findSeatUnitsInformation" resultType="org.ld.model.webSocketModel.CCUSeatUnitsModel" parameterType="java.lang.String">
+   SELECT a.AP_SeatID,c.SD_DeviceID,a.AP_ReportPower,
+        a.AP_VotePower,a.AP_SpeakPower,a.AP_FirstSpeakPower,
+        a.AP_CallPower,a.AP_SearchPower,
+        c.SD_PassWayCode,c.SD_CCUAddressCode,
+        b.st_ViceCardNum,a.AP_StaffID
+        FROM t_agendaperson a
+        LEFT JOIN t_staffinfo b ON a.AP_StaffID = b.id
+        LEFT JOIN t_seatdevice c ON a.AP_SeatID = c.SD_SeatID
+        WHERE a.AP_AgendaID IN (SELECT Ag_ID FROM t_agenda WHERE Ag_CongressID = ${value})
+        AND c.SD_DeviceID &lt;&gt; ""
+        ORDER BY a.AP_SeatID,c.SD_DeviceID ASC
+  </select>
+    <!-- 查询当前会议用到的活动设备id -->
+    <select id="findIsUsedDeviceId" resultType="org.ld.model.webSocketModel.CCUFirestConnectModel">
+        SELECT DISTINCT
+            c.SD_DeviceID  AS DU_ID
+            FROM
+            t_agendaperson a
+            LEFT JOIN t_staffinfo b
+            ON a.AP_StaffID = b.id
+            LEFT JOIN t_seatdevice c
+            ON a.AP_SeatID = c.SD_SeatID
+            WHERE a.AP_AgendaID IN
+            (SELECT
+            Ag_ID
+            FROM
+            t_agenda
+            WHERE Ag_CongressID =
+            (SELECT
+            id
+            FROM
+            t_congress
+            WHERE co_Status = 1))
+            AND c.SD_DeviceID &lt;&gt; ""
+            ORDER BY c.SD_DeviceID ASC
+    </select>
+
+</mapper>

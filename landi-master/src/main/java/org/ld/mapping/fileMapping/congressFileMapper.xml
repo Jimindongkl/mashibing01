@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.fileDao.CongressFileDao">
+	<resultMap id="CongressFileResultMap" type="org.ld.model.fileModel.CongressFile">
+	  <id column="CF_ID" property="id" jdbcType="INTEGER"/>
+	  <result column="CF_CongressID" property="congressID" jdbcType="INTEGER" />
+	  <result column="CF_AgendaID" property="agendaID" jdbcType="INTEGER" />
+	  <result column="CF_TopicID" property="topicID" jdbcType="INTEGER" />
+	  <result column="CF_Type" property="cfType" jdbcType="INTEGER" />
+	  <result column="CF_Name" property="cfName" jdbcType="VARCHAR" />
+	  <result column="CF_Content" property="cfContent" jdbcType="VARCHAR" />
+	  <result column="CF_Path" property="cfPath" jdbcType="VARCHAR" />
+	  <result column="CF_PicPath" property="cfPicPath" jdbcType="VARCHAR" />
+	  <result column="CF_TrueFilePath" property="trueFilePath" jdbcType="VARCHAR" />
+	  <result column="CF_Source" property="cfSource" jdbcType="VARCHAR" />
+	  <result column="FT_TypeName" property="typeName" jdbcType="VARCHAR" />
+	  <result column="CF_Size" property="cfSize" jdbcType="FLOAT" />
+	  <result column="CF_Serial" property="cfSerial" jdbcType="BIGINT" />
+	  <result column="CF_CreateTime" property="createTime" jdbcType="DATE" />
+	  <result column="CF_UpdateTime" property="updateTime" jdbcType="DATE" />
+	  <result column="CF_IsEnabled" property="cfIsEnabled" jdbcType="INTEGER" />
+	  <result column="CF_Remark" property="remark" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="CongressFileId">
+		<where>
+			<!-- 根据会议id的查询 -->
+			<if test="congressID >0 ">
+				 CF_CongressID=#{congressID}
+			</if>
+			<!-- 根据议程id的查询 -->
+			<if test="agendaID >0 ">
+				and CF_AgendaID=#{agendaID}
+			</if>
+			<!-- 根据议题的查询 -->
+			<if test="topicID >0 ">
+				and CF_TopicID=#{topicID}
+			</if>
+		</where>
+	</sql>
+	
+	<!-- 条件查询会议文件 -->
+	<select id="findCongressFiles" parameterType="org.ld.model.fileModel.CongressFile" resultMap="CongressFileResultMap">
+	select w.* from (
+		select	a.CF_ID,a.CF_CongressID,a.CF_AgendaID,a.CF_TopicID,a.CF_Type,a.CF_Name,
+		a.CF_Content,a.CF_Path,a.CF_PicPath,a.CF_TrueFilePath,a.CF_Source,a.CF_Size,a.CF_Serial,a.CF_CreateTime,a.CF_UpdateTime,
+		a.CF_IsEnabled,a.CF_Remark,b.FT_TypeName typeName
+		from t_congressfile a 
+		LEFT JOIN t_filetype b  on b.FT_ID = a.CF_Type 
+		<include refid="CongressFileId"></include>
+		)w
+		order by CF_Serial asc
+	</select>
+	
+	<!-- 查询会议文件中最大的序号 -->
+	<select id="getMaxCongressFileOrder" resultType="java.lang.Integer">
+	SELECT MAX(CF_Serial) FROM t_congressfile
+	</select>
+	
+	<!-- 批量增加会议文件 -->
+	<insert id="addBatchCongressFiles" useGeneratedKeys="true" parameterType="java.util.List" >
+	       insert into
+	           t_congressfile (CF_CongressID,CF_AgendaID,CF_TopicID,CF_Type,CF_Name,CF_Content,
+	           CF_Path,CF_PicPath,CF_TrueFilePath,CF_Source,CF_Size,CF_Serial,CF_CreateTime,CF_UpdateTime,CF_IsEnabled,CF_Remark)
+	       values
+	       <foreach collection="list" item="item"  separator="," >
+	           (#{item.congressID},#{item.agendaID},#{item.topicID},#{item.cfType},#{item.cfName},#{item.cfContent},
+	           #{item.cfPath},#{item.cfPicPath},#{item.trueFilePath},#{item.cfSource},#{item.cfSize},#{item.cfSerial},#{item.createTime},#{item.updateTime},
+	           #{item.cfIsEnabled},#{item.remark})
+	       </foreach>
+	</insert>
+	
+	<!-- 单个增加会议文件 -->
+	<insert id="addCongressFile"  parameterType="org.ld.model.fileModel.CongressFile">
+	       insert into
+	           t_congressfile (CF_CongressID,CF_AgendaID,CF_TopicID,CF_Type,CF_Name,CF_Content,
+	           CF_Path,CF_PicPath,CF_TrueFilePath,CF_Source,CF_Size,CF_Serial,CF_CreateTime,CF_UpdateTime,CF_IsEnabled,CF_Remark)
+	       values
+	           (#{congressID},#{agendaID},#{topicID},#{cfType},#{cfName},#{cfContent},
+	           #{cfPath},#{cfPicPath},#{trueFilePath},#{cfSource},#{cfSize},#{cfSerial},#{createTime},#{updateTime},
+	           #{cfIsEnabled},#{remark})
+	</insert>
+	
+	<!-- 修改会议文件信息 -->
+	<update id="updateCongressFile" parameterType="org.ld.model.fileModel.CongressFile">
+	update t_congressfile set CF_IsEnabled = #{cfIsEnabled}, CF_Source = #{cfSource}, CF_Type = #{cfType}, CF_UpdateTime = #{updateTime}
+	where CF_ID = #{id}
+	</update>
+	
+	<!-- 删除会议文件 -->
+	<delete id="deleteCongresFiles">
+		delete from t_congressfile where CF_ID in 
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+	</delete>
+	
+	<!-- 查询会议文件的信息 -->
+	<select id="findCongressFileName"  resultMap="CongressFileResultMap">
+		select	CF_ID,CF_CongressID,CF_AgendaID,CF_TopicID,CF_Type,CF_Name,
+		CF_Content,CF_Path,CF_PicPath,CF_TrueFilePath,CF_Source,CF_Size,CF_Serial,CF_CreateTime,CF_UpdateTime,
+		CF_IsEnabled,CF_Remark
+		from t_congressfile 
+		where CF_ID in
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+	</select>
+	
+	<!-- 批量修改文件的序号 -->
+	<update id="updateBatchCongresFiles" parameterType="java.util.List">
+		update t_congressfile
+   	 <trim prefix="set" suffixOverrides=",">
+        <trim prefix="CF_Serial =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.cfSerial!=null">
+              when CF_ID=#{item.id} then #{item.cfSerial}
+             </if>
+             </foreach>
+        </trim>
+    </trim>
+    where CF_ID in
+    <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+        #{item.id,jdbcType=INTEGER}
+    </foreach>
+	</update>
+	
+	<select id="getCongressIdFindCongressFile" parameterType="java.lang.Integer" resultMap="CongressFileResultMap">
+	select w.* from (
+		select	a.CF_ID,a.CF_CongressID,a.CF_AgendaID,a.CF_TopicID,a.CF_Type,a.CF_Name,
+		a.CF_Content,a.CF_Path,a.CF_PicPath,a.CF_TrueFilePath,a.CF_Source,a.CF_Size,a.CF_Serial,a.CF_CreateTime,a.CF_UpdateTime,
+		a.CF_IsEnabled,a.CF_Remark
+		from t_congressfile a 
+		LEFT JOIN t_filetype b on a.CF_Type = b.FT_ID 
+		where CF_CongressID = #{congressID}
+		)w
+		order by CF_Serial asc
+	</select>
+	
+  	
+</mapper>

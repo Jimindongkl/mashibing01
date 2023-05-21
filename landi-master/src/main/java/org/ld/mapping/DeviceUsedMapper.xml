@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.DeviceUsedDao" >
+    <resultMap id="DeviceUsedResultMap" type="org.ld.model.DeviceUsed" >
+        <id column="DU_ID" property="duId" jdbcType="INTEGER" />
+        <result column="DU_DeviceID" property="duDeviceID" jdbcType="VARCHAR" />
+        <result column="DU_NetIPAddress" property="duNetIPAddress" jdbcType="VARCHAR" />
+        <result column="DU_NetRecvPort" property="duNetRecvPort" jdbcType="INTEGER" />
+        <result column="DU_NetSendPort" property="duNetSendPort" jdbcType="INTEGER" />
+        <result column="DU_SerialPortCode" property="duSerialPortCode" jdbcType="INTEGER" />
+        <result column="DU_PassWayStartNum" property="duPassWayStartNum" jdbcType="INTEGER" />
+        <result column="DU_PassWayCount" property="duPassWayCount" jdbcType="INTEGER" />
+        <result column="DU_PassWayUnit" property="duPassWayUnit" jdbcType="INTEGER" />
+        <result column="ZD_PassWayUnit" property="zdPassWayUnit" jdbcType="INTEGER" />
+        <result column="DU_Rate" property="duRate" jdbcType="INTEGER" />
+        <result column="DU_Bite" property="duBite" jdbcType="INTEGER" />
+        <result column="DU_Paritycheck" property="duParitycheck" jdbcType="INTEGER" />
+        <result column="DU_StopBit" property="duStopBit" jdbcType="INTEGER" />
+        <result column="DU_TypeID" property="duTypeID" jdbcType="INTEGER" />
+        <result column="DU_SeatUnitCount" property="duSeatUnitCount" jdbcType="INTEGER" />
+        <result column="DU_Remark" property="duRemark" jdbcType="VARCHAR" />
+    </resultMap>
+    <!-- 查询列表 -->
+    <select id="getAllDeviceUsed" parameterType="org.ld.model.DeviceUsed" resultMap="DeviceUsedResultMap">
+		SELECT
+              DU_ID ,
+              DU_DeviceID,
+              t2.Dev_Name AS devName,
+              t3.dic_Name AS duName,
+              t2.Dev_ConnType as devConnType,
+              DU_NetIPAddress  ,
+              DU_NetRecvPort  ,
+              DU_NetSendPort  ,
+              DU_SerialPortCode  ,
+              DU_PassWayStartNum  ,
+              DU_PassWayCount  ,
+              DU_PassWayUnit,
+              (
+              CASE DU_PassWayUnit WHEN 1 THEN 8
+              WHEN 2 THEN 16
+              WHEN 3 THEN 32
+              WHEN 4 THEN 64
+              WHEN 5 THEN 128
+              WHEN 6 THEN 254
+              ELSE '' END
+              )ZD_PassWayUnit  ,
+              DU_Rate  ,
+              DU_Bite  ,
+              DU_Paritycheck  ,
+              DU_StopBit  ,
+              DU_TypeID ,
+              DU_SeatUnitCount ,
+              DU_Remark
+            FROM t_deviceused t,t_device t2,t_dictionary t3
+            WHERE t.DU_DeviceID = t2.Dev_ID
+            AND t2.Dev_TypeID = t3.id
+	</select>
+
+    <select id="getDeviceUsedByConditions" parameterType="org.ld.model.DeviceUsed" resultMap="DeviceUsedResultMap">
+        select
+        DU_ID ,
+        DU_DeviceID  ,
+        DU_NetIPAddress  ,
+        DU_NetRecvPort  ,
+        DU_NetSendPort  ,
+        DU_SerialPortCode  ,
+        DU_PassWayStartNum  ,
+        DU_PassWayCount  ,
+        DU_PassWayUnit  ,
+        DU_Rate  ,
+        DU_Bite  ,
+        DU_Paritycheck  ,
+        DU_StopBit  ,
+        DU_TypeID ,
+        DU_SeatUnitCount ,
+        DU_Remark
+        from t_deviceused
+        where 1=1
+        <if test="duId != null and duId !=''">
+            and DU_ID = #{duId}
+        </if>
+        <if test="duDeviceID != null and duDeviceID != ''">
+            and DU_DeviceID = #{duDeviceID}
+        </if>
+    </select>
+
+    <insert id="addDeviceUsed" parameterType="org.ld.model.DeviceUsed">
+        insert into t_deviceused
+            (DU_ID,
+             DU_DeviceID,
+             DU_NetIPAddress,
+             DU_NetRecvPort,
+             DU_NetSendPort,
+             DU_SerialPortCode,
+             DU_PassWayStartNum,
+             DU_PassWayCount,
+             DU_PassWayUnit,
+             DU_Rate,
+             DU_Bite,
+             DU_Paritycheck,
+             DU_StopBit,
+             DU_TypeID,
+             DU_SeatUnitCount,
+             DU_Remark)
+            values (#{duId},
+                    #{duDeviceID},
+                    #{duNetIPAddress},
+                    #{duNetRecvPort},
+                    #{duNetSendPort},
+                    #{duSerialPortCode},
+                    #{duPassWayStartNum},
+                    #{duPassWayCount},
+                    #{duPassWayUnit},
+                    #{duRate},
+                    #{duBite},
+                    #{duParitycheck},
+                    #{duStopBit},
+                    #{duTypeID},
+                    #{duSeatUnitCount},
+                    #{duRemark})
+
+    </insert>
+
+    <!-- 修改活动设备信息 -->
+    <update id="updateDeviceUsed" parameterType="org.ld.model.DeviceUsed">
+	UPDATE t_deviceused
+       SET
+              DU_DeviceID = #{duDeviceID},
+              DU_NetIPAddress = #{duNetIPAddress},
+              DU_NetRecvPort = #{duNetRecvPort},
+              DU_NetSendPort = #{duNetSendPort},
+              DU_SerialPortCode = #{duSerialPortCode},
+              DU_PassWayStartNum = #{duPassWayStartNum},
+              DU_PassWayCount = #{duPassWayCount},
+              DU_PassWayUnit = #{duPassWayUnit},
+              DU_Rate = #{duRate},
+              DU_Bite = #{duBite},
+              DU_Paritycheck = #{duParitycheck},
+              DU_StopBit = #{duStopBit},
+              DU_TypeID = #{duTypeID},
+              DU_SeatUnitCount = #{duSeatUnitCount},
+              DU_Remark = #{duRemark}
+            WHERE DU_ID = #{duId};
+	</update>
+    <!-- 批量删除-->
+    <delete id="deleteDeviceUsed" parameterType="java.util.Arrays">
+        delete from t_deviceused where DU_ID in
+        <foreach collection="list" item="args" open="("   close=")"  separator=",">#{args}</foreach>
+    </delete>
+
+</mapper>

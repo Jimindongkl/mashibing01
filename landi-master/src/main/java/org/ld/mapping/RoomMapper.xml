@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.RoomDao">
+	<resultMap id="RoomResultMap" type="org.ld.model.Room">
+	  <id column="id" property="id" jdbcType="INTEGER"/>
+	  <result column="rm_Name" property="roomName" jdbcType="VARCHAR" />
+	  <result column="rm_Address" property="address" jdbcType="VARCHAR" />
+	  <result column="rm_Contain" property="contain" jdbcType="INTEGER" />
+	  <result column="rm_Linkman" property="linkman" jdbcType="VARCHAR" />
+	  <result column="rm_Phone" property="phone" jdbcType="VARCHAR" />
+	  <result column="rm_SeatGraph" property="seatGraph" jdbcType="VARCHAR" />
+	  <result column="rm_CenterControlIP" property="centerControlIP" jdbcType="VARCHAR" />
+	  <result column="rm_ProjectiveIP" property="projectiveIP" jdbcType="VARCHAR" />
+	  <result column="rm_FileTransportIP" property="fileTransportIP" jdbcType="VARCHAR" />
+	  <result column="rm_ServiceIP" property="serviceIP" jdbcType="VARCHAR" />
+	  <result column="rm_SeatModelID" property="seatModel.id" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="roomId">
+		<where>
+			<!-- 会议室名的模糊查询 -->
+			<if test="roomName!=null and roomName!=''">
+				and rm_Name like concat('%',#{roomName},'%')
+			</if>
+		</where>
+	</sql>
+	
+	<!-- 计算总条数 -->
+	<select id="getCount" parameterType="org.ld.model.Room" resultType="long">
+		select count(*) from t_room a
+		<include refid="roomId"></include>
+	</select> 
+	
+  	<!-- 会议室展示-->
+	<select id="findRoomList" resultMap="RoomResultMap">
+	select r.* from (
+		select id,rm_Name,rm_Address,rm_Contain,rm_Linkman,rm_Phone,rm_SeatGraph,
+		rm_CenterControlIP,rm_ProjectiveIP,rm_FileTransportIP,rm_ServiceIP,rm_SeatModelID
+		from t_room			
+	<include refid="roomId"></include>
+	)r
+	order by id asc
+		limit #{startPos},#{pageSize}
+	</select>
+	
+	<!-- 查询所有的会议室 -->
+	<select id="findRooms" resultMap="RoomResultMap">
+	select id,rm_Name,rm_Address,rm_Contain,rm_Linkman,rm_Phone,rm_SeatGraph,
+		rm_CenterControlIP,rm_ProjectiveIP,rm_FileTransportIP,rm_ServiceIP,rm_SeatModelID
+		from t_room   order by id asc
+	</select>
+	
+	<!-- 增加会议室 -->
+	<insert id="addRoom" parameterType="org.ld.model.Room"  keyColumn="id" 
+     useGeneratedKeys="true" keyProperty="id">
+		insert into t_room (rm_Name,rm_Address,rm_Contain,rm_Linkman,rm_Phone,rm_SeatGraph,
+		rm_CenterControlIP,rm_ProjectiveIP,rm_FileTransportIP,rm_ServiceIP,rm_SeatModelID) values
+		(#{roomName},#{address},#{contain},#{linkman},#{phone},#{seatGraph},
+		#{centerControlIP},#{projectiveIP},#{fileTransportIP},#{serviceIP},#{seatModel.id})
+	</insert>
+	
+	<!-- 修改会议室-->
+	<update id="updateRoom" parameterType="org.ld.model.Room">
+		update t_room SET rm_Name=#{roomName},rm_Address=#{address},rm_Contain=#{contain},rm_Linkman=#{linkman},
+		rm_Phone=#{phone},rm_SeatGraph=#{seatGraph},rm_CenterControlIP=#{centerControlIP},rm_ProjectiveIP=#{projectiveIP},
+		rm_ServiceIP=#{serviceIP},rm_FileTransportIP=#{fileTransportIP},rm_SeatModelID=#{seatModel.id} where id = #{id}
+	</update>
+	
+ 	<!-- 批量删除会议室 -->
+	<delete id="deleteRooms">
+		delete from t_room where id in 
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+	</delete>
+	
+	<!-- 按主键id查询会议室的详细信息 -->
+	<select id="finRoomInfo" parameterType="java.lang.Integer" resultMap="RoomResultMap">
+	select id,rm_Name,rm_Address,rm_Contain,rm_Linkman,rm_Phone,rm_SeatGraph,
+		rm_CenterControlIP,rm_ProjectiveIP,rm_FileTransportIP,rm_ServiceIP,rm_SeatModelID
+		from t_room where  id = #{roomId}
+	</select>
+	
+	<!-- 查询是否有会议室使用坐席SeatModel -->
+	<select id="findRoomIsSeatModelList" parameterType="java.lang.Integer" resultMap="RoomResultMap">
+	select id,rm_Name,rm_Address,rm_Contain,rm_Linkman,rm_Phone,rm_SeatGraph,
+		rm_CenterControlIP,rm_ProjectiveIP,rm_FileTransportIP,rm_ServiceIP,rm_SeatModelID
+		from t_room where  rm_SeatModelID = #{in}
+	</select>
+  
+	
+</mapper>

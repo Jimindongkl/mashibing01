@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.LogDao" >
+  	
+  	<resultMap id="LogResultMap" type="org.ld.model.Log" >
+    <id column="Log_ID" property="logID" jdbcType="INTEGER" />
+    <result column="Log_TypeID" property="logTypeID" jdbcType="INTEGER" />
+    <result column="Log_Timestamp" property="logTimestamp" jdbcType="INTEGER" />
+    <result column="Log_UserName" property="logUserName" jdbcType="VARCHAR" />
+    <result column="Log_Count" property="logCount" jdbcType="VARCHAR" />
+    <result column="Log_IP" property="logIP" jdbcType="VARCHAR" />
+    <result column="Log_Serial" property="logSerial" jdbcType="INTEGER" />
+    <result column="Log_IsEnabled" property="logIsEnabled" jdbcType="INTEGER" />
+    <result column="Log_CreateTime" property="logCreateTime" jdbcType="DATE" />
+  </resultMap>
+  
+  	<!--增加日志 -->
+	 <insert id="saveLog" parameterType="org.ld.model.Log">
+	 insert into t_log (Log_TypeID,Log_Timestamp,Log_UserName,Log_Count,Log_IP,Log_Serial,Log_IsEnabled,Log_CreateTime) values 
+	 (#{logTypeID},#{logTimestamp},#{logUserName},#{logCount},#{logIP},#{logSerial},#{logIsEnabled},#{logCreateTime})
+	 </insert>
+	 
+</mapper>

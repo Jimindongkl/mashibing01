@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.StaffLibraryDao" >
+	<resultMap id="StaffLibraryResultMap" type="org.ld.model.StaffLibrary" >
+	  <id column="SL_ID" property="id" jdbcType="INTEGER" />
+	  <result column="SL_Name" property="staffLibraryName" jdbcType="VARCHAR" />
+	  <result column="SL_ParentID" property="parentID" jdbcType="INTEGER" />
+	  <result column="SL_CreateTime" property="createTime" jdbcType="DATE" />
+	  <result column="SL_Remark" property="remark" jdbcType="VARCHAR" />
+	  <result column="SL_Spare" property="spare" jdbcType="VARCHAR" />
+	</resultMap>
+  
+	<!-- 查询人员分类 -->
+	<select id="queryStaffLibraryList" resultMap="StaffLibraryResultMap">
+	select SL_ID,SL_Name,SL_ParentID,SL_CreateTime,SL_Remark from t_stafflibrary
+	</select>
+	
+	<!-- 增加人员分类 -->
+	<insert id="addStaffinfoLibrary" parameterType="org.ld.model.StaffLibrary">
+		insert into t_stafflibrary
+		(SL_Name,SL_ParentID,SL_CreateTime,SL_Remark,SL_Spare)
+	values(#{staffLibraryName},#{parentID},#{createTime},#{remark},#{spare})
+	</insert>
+	
+	<!-- 修改人员分类 -->
+	<update id="updateStaffinfoLibrary" parameterType="org.ld.model.StaffLibrary">
+	UPDATE t_stafflibrary SET SL_Name=#{staffLibraryName},SL_ParentID=#{parentID},
+	SL_Remark=#{remark},SL_Spare=#{spare} where SL_ID=#{id}
+	</update>
+	
+	<delete id="deleteStaffinfoLibrary" parameterType="int">
+	delete from t_stafflibrary where SL_ID = #{id}
+	</delete>
+	
+	
+  
+	
+</mapper>

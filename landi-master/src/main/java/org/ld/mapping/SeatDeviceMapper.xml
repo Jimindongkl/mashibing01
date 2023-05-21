@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.SeatDeviceDao" >
+	<resultMap id="SeatDeviceResultMap" type="org.ld.model.SeatDevice" >
+	  <id column="SD_ID" property="id" jdbcType="INTEGER" />
+	  <result column="SD_SeatID" property="seatUnitId" jdbcType="INTEGER" />
+	  <result column="SD_DeviceID" property="deviceUsedId" jdbcType="INTEGER" />
+	  <result column="SD_UnitCode" property="UnitCode" jdbcType="VARCHAR" />
+	  <result column="SD_PassWayCode" property="PassWayCode" jdbcType="INTEGER" />
+	  <result column="SD_CCUAddressCode" property="CCUAddressCode" jdbcType="INTEGER" />
+	  <result column="SD_OtherPassWayCode" property="OtherPassWayCode" jdbcType="INTEGER" />
+	  <result column="SD_OtherAddressCode" property="OtherAddressCode" jdbcType="INTEGER" />
+	  <result column="SD_CameraSet" property="CameraSet" jdbcType="VARCHAR" />
+	  <result column="SD_TouchScreenSet" property="TouchScreenSet" jdbcType="VARCHAR" />
+	  <result column="SD_IPAddress" property="IPAddress" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!--批量坐席跟活动设备绑定  -->
+	<insert id="addSeatDevice" parameterType="org.ld.model.SeatDevice">
+	insert into t_seatdevice (SD_SeatID,SD_DeviceID,SD_UnitCode,SD_PassWayCode,SD_CCUAddressCode,
+	SD_OtherPassWayCode,SD_OtherAddressCode,SD_CameraSet,SD_TouchScreenSet,SD_IPAddress)
+	values
+	 <foreach collection="list" item="item"  separator="," >
+	          (#{item.seatUnitId},#{item.deviceUsedId},#{item.UnitCode},#{item.PassWayCode},#{item.CCUAddressCode},
+	#{item.OtherPassWayCode},#{item.OtherAddressCode},#{item.CameraSet},#{item.TouchScreenSet},#{item.IPAddress})
+	  </foreach>
+	</insert>
+	
+	<!-- 设备关联坐席的查询 -->
+	<select id="getUnitDevicesList"  parameterType="org.ld.model.SeatUnit"  resultType="java.util.Map">
+		select * from (select 
+		c.SU_ID id,c.SU_Name name,c.SU_Row rowId,c.SU_Column columnId,c.SU_Xpoint x,c.SU_Ypoint y,c.SU_Zpoint z,c.SU_UserName userName,
+		 c.SU_Width Width,c.SU_Height Height,c.SU_Angle degree,c.SU_Type type,
+		a.SD_DeviceID 
+		 from  t_seatunit  c 
+		LEFT JOIN t_seatdevice a  on c.SU_ID = a.SD_SeatID
+		where c.SU_SeatModelID = #{suSeatModelId}) w
+	LEFT JOIN t_deviceused  u  on w.SD_DeviceID = u.DU_ID
+	</select>
+	
+	<!-- 按id查询单个坐席的详细信息 -->
+	<select id="findSeatDeviceByID" parameterType="org.ld.model.SeatDevice" resultMap="SeatDeviceResultMap">
+	select SD_ID,SD_SeatID,SD_DeviceID,SD_UnitCode,SD_PassWayCode,SD_CCUAddressCode,
+		SD_OtherPassWayCode,SD_OtherAddressCode,SD_CameraSet,SD_TouchScreenSet,SD_IPAddress 
+			from t_seatdevice  where SD_SeatID = #{seatUnitId}  and SD_DeviceID = #{deviceUsedId}
+	</select>
+	
+	<!--按坐席id查询绑定的活动设备  -->
+	<select id="getSeatDeviceUsedList" parameterType="java.lang.Integer" resultMap="SeatDeviceResultMap">
+	select 
+	SD_ID,
+	SD_SeatID,
+	SD_DeviceID,
+	SD_UnitCode,
+	SD_PassWayCode,
+	SD_CCUAddressCode,
+	SD_OtherPassWayCode,
+	SD_OtherAddressCode,
+	SD_CameraSet,
+	SD_TouchScreenSet,
+	SD_IPAddress 
+	from t_seatdevice  where SD_SeatID = #{seatID}
+	</select>
+	
+	<!-- 按设备id查询坐席的详细信息 -->
+	<select id="getDevicefindSeatUnitList" parameterType="java.lang.Integer" resultMap="SeatDeviceResultMap">
+	select SD_ID,SD_SeatID,SD_DeviceID,SD_UnitCode,SD_PassWayCode,SD_CCUAddressCode,
+		SD_OtherPassWayCode,SD_OtherAddressCode,SD_CameraSet,SD_TouchScreenSet,SD_IPAddress 
+			from t_seatdevice  where  SD_SeatID in 
+			(select SU_ID from t_seatunit where SU_SeatModelID = #{suSeatModelId})
+			  and SD_DeviceID = #{deviceUsedId}
+	</select>
+	
+	<!-- 按id修改坐席设备的详细信息 -->
+	<update id="updateSeatDeviceByID"  parameterType="org.ld.model.SeatDevice">
+		update 	t_seatdevice set 	
+		SD_PassWayCode = #{PassWayCode},
+		SD_CCUAddressCode = #{CCUAddressCode},
+		SD_IPAddress =	#{IPAddress},
+		SD_CameraSet = #{CameraSet},
+		SD_OtherAddressCode = #{OtherAddressCode}
+		where SD_ID = #{id}
+	</update>
+	
+	<!-- 用活动设备查询绑定坐席的情况 -->
+	<select id="findIsNotseatDevice"  parameterType="java.lang.Integer" resultMap="SeatDeviceResultMap">
+	select 
+	SD_SeatID,
+	SD_DeviceID,
+	SD_UnitCode,
+	SD_PassWayCode,
+	SD_CCUAddressCode,
+	SD_OtherPassWayCode,
+	SD_OtherAddressCode,
+	SD_CameraSet,
+	SD_TouchScreenSet,
+	SD_IPAddress 
+	from t_seatdevice  where SD_DeviceID = #{deviceUsedId}
+	
+	</select>
+
+	<!-- 缓存坐席id -->
+	<select id="getSeatIdCache"  parameterType="java.lang.Integer" resultMap="SeatDeviceResultMap">
+	SELECT SD_SeatID ,SD_DeviceID,SD_PassWayCode ,SD_CCUAddressCode FROM t_seatdevice t
+	where SD_SeatID in (select SU_ID from t_seatunit where SU_SeatModelID = #{modelId} )
+	</select>
+	
+	<!-- 批量修改设备绑定坐席的地址号 -->
+	<update id="updateSeatdeviceAddressCode">
+		update t_seatdevice
+   	 <trim prefix="set" suffixOverrides=",">
+        <trim prefix="SD_CCUAddressCode =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.CCUAddressCode!=null">
+              when SD_ID=#{item.id} then #{item.CCUAddressCode}
+             </if>
+             </foreach>
+        </trim>
+     </trim>
+    where SD_ID in
+    <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+        #{item.id,jdbcType=INTEGER}
+    </foreach>
+	</update>
+	
+	<!-- 批量修改设备绑定坐席的ip地址 -->
+	<update id="updateSeatdeviceIPAddress">
+		update t_seatdevice
+	   	 <trim prefix="set" suffixOverrides=",">
+	        <trim prefix="SD_IPAddress =case" suffix="end,">
+	             <foreach collection="list" item="item" index="index">
+	             <if test="item.IPAddress!=null">
+	              when SD_ID=#{item.id} then #{item.IPAddress}
+	             </if>
+	             </foreach>
+	        </trim>
+	     </trim>
+	    where SD_ID in
+	    <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+	        #{item.id,jdbcType=INTEGER}
+	    </foreach>
+	</update>
+	
+	<!-- 批量修改设备绑定坐席的触摸屏 -->
+	<update id="updateSeatdeviceTouchScreenSet">
+		update t_seatdevice
+	   	 <trim prefix="set" suffixOverrides=",">
+	        <trim prefix="SD_TouchScreenSet =case" suffix="end,">
+	             <foreach collection="list" item="item" index="index">
+	             <if test="item.TouchScreenSet!=null">
+	              when SD_ID=#{item.id} then #{item.TouchScreenSet}
+	             </if>
+	             </foreach>
+	        </trim>
+	     </trim>
+	    where SD_ID in
+	    <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+	        #{item.id,jdbcType=INTEGER}
+	    </foreach>
+	</update>
+	
+	
+	<!-- 批量修改设备绑定坐席的通道号 -->
+	<update id="updateSeatdevicePassWayCode">
+		update t_seatdevice
+	   	 <trim prefix="set" suffixOverrides=",">
+	        <trim prefix="SD_PassWayCode =case" suffix="end,">
+	             <foreach collection="list" item="item" index="index">
+	             <if test="item.PassWayCode!=null">
+	              when SD_ID=#{item.id} then #{item.PassWayCode}
+	             </if>
+	             </foreach>
+	        </trim>
+	     </trim>
+	    where SD_ID in
+	    <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+	        #{item.id,jdbcType=INTEGER}
+	    </foreach>
+	</update>
+	
+	<!-- 批量解绑坐席设备 -->
+	<delete id="deleteSeatdevices">
+		delete from t_seatdevice where SD_DeviceID = #{deviceId} 
+		<foreach collection="idList" item="a" open="and SD_SeatID in("   close=")"  separator=",">#{a}</foreach>
+	</delete>
+	
+	<!-- 根据坐席id和活动设备id查询数据 -->
+	<select id="findSeatDeviceByList" parameterType="java.lang.Integer" resultMap="SeatDeviceResultMap">
+	select 
+	SD_SeatID,
+	SD_DeviceID,
+	SD_UnitCode,
+	SD_PassWayCode,
+	SD_CCUAddressCode,
+	SD_OtherPassWayCode,
+	SD_OtherAddressCode,
+	SD_CameraSet,
+	SD_TouchScreenSet,
+	SD_IPAddress 
+	from t_seatdevice  
+	where SD_DeviceID = #{deviceUsedId} and  SD_SeatID =#{seatUnitId}
+	</select>
+	
+	<!-- 按坐席id删除绑定的设备 -->
+	<delete id="deleteSeatdeviceIsSeatUnitIds">
+		delete from t_seatdevice where SD_SeatID in 
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+	</delete>
+	
+</mapper>

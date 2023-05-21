@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.SeatUnitDao" >
+    <resultMap id="SeatUnitResultMap" type="org.ld.model.SeatUnit" >
+        <id column="SU_ID" property="suId" jdbcType="INTEGER" />
+        <result column="SU_SeatModelID" property="suSeatModelId" jdbcType="INTEGER" />
+        <result column="SU_DeviceID" property="suDeviceId" jdbcType="INTEGER" />
+        <result column="SU_UnitCode" property="suUnitCode" jdbcType="INTEGER" />
+        <result column="SU_Name" property="suName" jdbcType="VARCHAR" />
+        <result column="SU_Row" property="suRow" jdbcType="INTEGER" />
+        <result column="SU_Column" property="suColumn" jdbcType="INTEGER" />
+        <result column="SU_Xpoint" property="suXpoint" jdbcType="DOUBLE" />
+        <result column="SU_Ypoint" property="suYpoint" jdbcType="DOUBLE" />
+        <result column="SU_Zpoint" property="suZpoint" jdbcType="DOUBLE" />
+        <result column="SU_Angle" property="angle" jdbcType="DOUBLE" />
+        <result column="SU_UserName" property="userName" jdbcType="VARCHAR" />
+        <result column="SU_Type" property="type" jdbcType="VARCHAR" />
+        <result column="SU_State" property="suState" jdbcType="INTEGER" />
+        <result column="SU_Serial" property="suSerial" jdbcType="INTEGER" />
+        <result column="SU_Width" property="suWidth" jdbcType="INTEGER" />
+        <result column="SU_Height" property="suHeight" jdbcType="INTEGER" />
+        <result column="SU_RoomPartID" property="suRoomPartId" jdbcType="INTEGER" />
+        <result column="SU_RoomPartName" property="suRoomPartName" jdbcType="VARCHAR" />
+        <result column="SU_AddressIP" property="suAddressIP" jdbcType="VARCHAR" />
+        <result column="SU_HostAddressIP" property="suHostAddressIP" jdbcType="VARCHAR" />
+        <result column="SU_SpareAddressIP" property="suSpareAddressIP" jdbcType="VARCHAR" />
+        <result column="SU_Content" property="suContent" jdbcType="VARCHAR" />
+        <result column="SU_ControlType" property="suControlType" jdbcType="INTEGER" />
+        <result column="SU_ContentStyle" property="suContentStyle" jdbcType="VARCHAR" />
+        <result column="SU_Spare" property="suSpare" jdbcType="VARCHAR" />
+        <result column="SU_AgendaPersonID" property="suAgendaPersonId" jdbcType="INTEGER" />
+    </resultMap>
+	
+	<sql id="SeatUnitSql">
+	SU_ID,SU_SeatModelID,SU_DeviceID,SU_UnitCode,SU_Name, SU_Row,SU_Column,
+             SU_Xpoint, SU_Ypoint,SU_Zpoint,SU_UserName,SU_State,SU_Serial,SU_Angle,SU_Width,SU_Height, SU_Type,SU_RoomPartID,
+             SU_RoomPartName,SU_AddressIP, SU_HostAddressIP,SU_SpareAddressIP,SU_Content, SU_ControlType,SU_ContentStyle, SU_Spare, SU_AgendaPersonID
+	</sql>
+
+    <!-- 根据坐席图id 查询 坐席单元 -->
+    <select id="getSeatUnitsByModelId" parameterType="org.ld.model.SeatUnit" resultType="org.ld.vo.SeatUnitVo">
+		select SU_ID id,SU_Name name,SU_Row rowId,SU_Column columnId,SU_Xpoint x,SU_Ypoint y,SU_Zpoint z,SU_UserName userName,
+		 SU_Width Width,SU_Height Height,SU_Angle degree,SU_Type type,SU_DeviceID suDeviceId,SU_UnitCode suUnitCode,SU_State suState,
+		SU_Serial suSerial,SU_RoomPartID suRoomPartId,SU_RoomPartName suRoomPartName,SU_AddressIP suAddressIP,SU_HostAddressIP suHostAddressIP,
+		SU_SpareAddressIP suSpareAddressIP ,SU_Content suContent,SU_ControlType suControlType,SU_ContentStyle suContentStyle,SU_Spare suSpare,
+		 SU_AgendaPersonID suAgendaPersonId,SU_SeatModelID suSeatModelId
+		 from t_seatunit where SU_SeatModelID = #{suSeatModelId}
+    </select>
+
+	<!-- 批量增加坐席单元 -->
+    <insert id="addSeatUnits" parameterType="java.util.List">
+    INSERT INTO t_seatunit
+            (SU_SeatModelID,
+             SU_DeviceID,
+             SU_UnitCode,
+             SU_Name,
+             SU_Row,
+             SU_Column,
+             SU_Xpoint,
+             SU_Ypoint,
+             SU_Zpoint,
+             SU_UserName,
+             SU_State,
+             SU_Serial,
+             SU_Angle,
+             SU_Width,
+             SU_Height,
+             SU_Type,
+             SU_RoomPartID,
+             SU_RoomPartName,
+             SU_AddressIP,
+             SU_HostAddressIP,
+             SU_SpareAddressIP,
+             SU_Content,
+             SU_ControlType,
+             SU_ContentStyle,
+             SU_Spare,
+             SU_AgendaPersonID)
+        VALUES
+        <foreach collection="list" item="item"  separator="," >
+            (#{item.suSeatModelId},
+            #{item.suDeviceId},
+            #{item.suUnitCode},
+            #{item.suName},
+            #{item.suRow},
+            #{item.suColumn},
+            #{item.suXpoint},
+            #{item.suYpoint},
+            #{item.suZpoint},
+            #{item.userName},
+            #{item.suState},
+            #{item.suSerial},
+            #{item.angle},
+            #{item.suWidth},
+            #{item.suHeight},
+            #{item.type},
+            #{item.suRoomPartId},
+            #{item.suRoomPartName},
+            #{item.suAddressIP},
+            #{item.suHostAddressIP},
+            #{item.suSpareAddressIP},
+            #{item.suContent},
+            #{item.suControlType},
+            #{item.suContentStyle},
+            #{item.suSpare},
+            #{item.suAgendaPersonId})
+        </foreach>
+	</insert>
+	
+    <update id="modifyUnits" parameterType="org.ld.model.SeatUnit" >
+			UPDATE t_seatunit
+            SET SU_ID = #{suId},
+              SU_SeatModelID = #{suSeatModelId},
+              SU_DeviceID = #{suDeviceId},
+              SU_UnitCode = #{suUnitCode},
+              SU_Name = #{suName},
+              SU_Row = #{suRow},
+              SU_Column = #{suColumn},
+              SU_Xpoint = #{suXpoint},
+              SU_Ypoint = #{suYpoint},
+              SU_State = #{suState},
+              SU_Serial = #{suSerial},
+              SU_Width = #{suWidth},
+              SU_Height = #{suHeight},
+              SU_RoomPartID = #{suRoomPartId},
+              SU_RoomPartName = #{suRoomPartName},
+              SU_AddressIP = #{suAddressIP},
+              SU_HostAddressIP = #{suHostAddressIP},
+              SU_SpareAddressIP = #{suSpareAddressIP},
+              SU_Content = #{suContent},
+              SU_ControlType = #{suControlType},
+              SU_ContentStyle = #{suContentStyle},
+              SU_Spare = #{suSpare},
+              SU_AgendaPersonID = #{suAgendaPersonId}
+            WHERE SU_ID = #{suId};
+	</update>
+	
+	<!-- 批量修改坐席单元 -->
+	<update id="updateSeatUnits" parameterType="java.util.List">
+		update t_seatunit
+   	 <trim prefix="set" suffixOverrides=",">
+        <trim prefix="SU_Name =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.suName!=null">
+              when SU_ID=#{item.suId} then #{item.suName}
+             </if>
+             </foreach>
+        </trim>
+        
+         <trim prefix="SU_DeviceID =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.suDeviceId!=null">
+              when SU_ID=#{item.suId} then #{item.suDeviceId}
+             </if>
+             </foreach>
+        </trim>
+        
+         <trim prefix="SU_UnitCode =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.suUnitCode!=null">
+              when SU_ID=#{item.suId} then #{item.suUnitCode}
+             </if>
+             </foreach>
+        </trim>
+        
+         <trim prefix="SU_Row =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.suRow!=null">
+              when SU_ID=#{item.suId} then #{item.suRow}
+             </if>
+             </foreach>
+        </trim>
+        
+         <trim prefix="SU_Column =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.suColumn!=null">
+              when SU_ID=#{item.suId} then #{item.suColumn}
+             </if>
+             </foreach>
+        </trim>
+        
+         <trim prefix="SU_Xpoint =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.suXpoint!=null">
+              when SU_ID=#{item.suId} then #{item.suXpoint}
+             </if>
+             </foreach>
+        </trim>
+        
+         <trim prefix="SU_Ypoint =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.suYpoint!=null">
+              when SU_ID=#{item.suId} then #{item.suYpoint}
+             </if>
+             </foreach>
+        </trim>
+        
+         <trim prefix="SU_Zpoint =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.suZpoint!=null">
+              when SU_ID=#{item.suId} then #{item.suZpoint}
+             </if>
+             </foreach>
+        </trim>
+        
+         <trim prefix="SU_Angle =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.angle!=null">
+              when SU_ID=#{item.suId} then #{item.angle}
+             </if>
+             </foreach>
+        </trim>
+        
+         <trim prefix="SU_UserName =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.userName!=null">
+              when SU_ID=#{item.suId} then #{item.userName}
+             </if>
+             </foreach>
+        </trim>
+        
+         <trim prefix="SU_Type =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.type!=null">
+              when SU_ID=#{item.suId} then #{item.type}
+             </if>
+             </foreach>
+        </trim>
+        
+         <trim prefix="SU_State =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.suState!=null">
+              when SU_ID=#{item.suId} then #{item.suState}
+             </if>
+             </foreach>
+        </trim>
+        
+         <trim prefix="SU_Serial =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.suSerial!=null">
+              when SU_ID=#{item.suId} then #{item.suSerial}
+             </if>
+             </foreach>
+        </trim>
+        
+         <trim prefix="SU_Width =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.suWidth!=null">
+              when SU_ID=#{item.suId} then #{item.suWidth}
+             </if>
+             </foreach>
+        </trim>
+        
+         <trim prefix="SU_Height =case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.suHeight!=null">
+              when SU_ID=#{item.suId} then #{item.suHeight}
+             </if>
+             </foreach>
+        </trim>
+        
+        <trim prefix=" SU_AddressIP=case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.suAddressIP!=null">
+              when SU_ID=#{item.suId} then #{item.suAddressIP}
+             </if>
+             </foreach>
+        </trim>
+        
+        <trim prefix=" SU_SpareAddressIP=case" suffix="end,">
+             <foreach collection="list" item="item" index="index">
+             <if test="item.suSpareAddressIP!=null">
+              when SU_ID=#{item.suId} then #{item.suSpareAddressIP}
+             </if>
+             </foreach>
+        </trim>
+        
+    </trim>
+    where SU_ID in
+    <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+        #{item.suId,jdbcType=INTEGER}
+    </foreach>
+	</update>
+	
+	<!-- 批量删除坐席单元 -->
+	<delete id="deleteSeatUnits">
+		delete from t_seatunit where SU_ID in 
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+	</delete>
+	
+	<!-- 增加坐席单元 -->
+	<insert id="addSeatUnit" parameterType="org.ld.model.SeatUnit"
+	 keyColumn="SU_ID" useGeneratedKeys="true" keyProperty="suId">
+	 INSERT INTO t_seatunit
+            (SU_SeatModelID,SU_DeviceID,SU_UnitCode,SU_Name,SU_Row,SU_Column,SU_Xpoint,SU_Ypoint,
+             SU_Zpoint,SU_UserName,SU_State,SU_Serial,SU_Angle,SU_Width, SU_Height, SU_Type,SU_RoomPartID,
+             SU_RoomPartName,SU_AddressIP,SU_HostAddressIP,SU_SpareAddressIP,SU_Content,SU_ControlType,
+             SU_ContentStyle,SU_Spare,SU_AgendaPersonID)
+        values
+            (#{suSeatModelId},#{suDeviceId},#{suUnitCode},#{suName},#{suRow},#{suColumn},#{suXpoint},
+            #{suYpoint},#{suZpoint},#{userName},#{suState},#{suSerial},#{angle},#{suWidth},#{suHeight},#{type},
+            #{suRoomPartId},#{suRoomPartName},#{suAddressIP},#{suHostAddressIP},#{suSpareAddressIP},#{suContent},
+            #{suControlType},#{suContentStyle},#{suSpare},#{suAgendaPersonId})
+	</insert>
+	
+	
+	<!-- 根据坐席id批量删除坐席单元 -->
+	<delete id="deleteModelSeatUnits">
+		delete from t_seatunit where SU_SeatModelID in 
+		<foreach collection="list" item="a" open="("   close=")"  separator=",">#{a}</foreach>
+	</delete>
+	
+	<!-- 根据坐席id批量查询坐席单元 -->
+	<select id="findSeatUnitId" parameterType="org.ld.model.SeatUnit"  resultType="org.ld.vo.SeatUnitVo">
+	select SU_ID id,SU_Name name,SU_Row rowId,SU_Column columnId,SU_Xpoint x,SU_Ypoint y,SU_Zpoint z,SU_UserName userName,
+		 SU_Width Width,SU_Height Height,SU_Angle degree,SU_Type type,SU_DeviceID suDeviceId,SU_UnitCode suUnitCode,SU_State suState,
+		SU_Serial suSerial,SU_RoomPartID suRoomPartId,SU_RoomPartName suRoomPartName,SU_AddressIP suAddressIP,SU_HostAddressIP suHostAddressIP,
+		SU_SpareAddressIP suSpareAddressIP ,SU_Content suContent,SU_ControlType suControlType,SU_ContentStyle suContentStyle,SU_Spare suSpare,
+		 SU_AgendaPersonID suAgendaPersonId,SU_SeatModelID suSeatModelId
+		 from t_seatunit where  SU_ID = #{suId}
+	</select>
+	
+	<!-- 单个修改坐席单元 -->
+	<update id="updateSeatUnitId" parameterType="org.ld.vo.SeatUnitVo">
+	update t_seatunit set 
+	SU_Name = #{name},SU_Row = #{rowId},SU_Column = #{columnId},SU_Xpoint = #{x},SU_Ypoint = #{y},SU_Zpoint = #{z},SU_UserName = #{userName},
+	SU_Width = #{Width},SU_Height =#{Height},SU_Angle = #{degree},SU_Type = #{type},
+	SU_AddressIP = #{suAddressIP},SU_HostAddressIP = #{suHostAddressIP},SU_SpareAddressIP = #{suSpareAddressIP} 
+    where SU_ID = #{id}
+	</update>
+	
+	<!-- 查询会议室下的坐席单元 -->
+	<select id="findRoomSeatUnitList" parameterType="java.lang.Integer" resultType="java.util.Map">
+	select SU_ID id,SU_Name name,SU_Row rowId,SU_Column columnId,SU_Xpoint x,SU_Ypoint y,SU_Zpoint z,SU_UserName userName,
+		 SU_Width Width,SU_Height Height,SU_Angle degree,SU_Type type
+		 from t_seatunit where SU_SeatModelID = 
+		 (SELECT rm_SeatModelID FROM t_room WHERE id = #{roomId})
+	</select>
+	
+	<!-- 按日程下的坐席单元查询绑定的人员信息 -->
+	<select id="getAgendaPersonSeatUnitList" resultType="org.ld.vo.AgendaPersonResult">
+		SELECT 
+		c.st_Name name,
+		b.AP_StaffID id,
+		b.AP_StaffID staffinfoId,
+		b.AP_Xpoint rowId,
+		b.AP_Ypoint columnId,
+		b.AP_ID agendaPersonId
+		from t_agendaperson b  
+		LEFT JOIN t_staffinfo c on b.AP_StaffID = c.id
+		where b.AP_AgendaID = #{agendaID}  and 
+			b.AP_SeatID = #{seatID}
+	</select>
+	
+	<!-- 按无纸化的ip查询出坐席单元 -->
+	<select id="findPaperlessDeviceusedIP"  parameterType="java.lang.String" resultMap="SeatUnitResultMap" >
+	select <include refid="SeatUnitSql"></include> 
+ 	from t_seatunit where SU_AddressIP = #{value}
+	</select>
+	
+	<!-- 批量修改无纸化ip -->
+	<update id="updateSeatAddressIps">
+	update t_seatunit
+	   	 <trim prefix="set" suffixOverrides=",">
+	        <trim prefix="SU_AddressIP =case" suffix="end,">
+	             <foreach collection="list" item="item" index="index">
+	             <if test="item.suAddressIP!=null">
+	              when SU_ID=#{item.suId} then #{item.suAddressIP}
+	             </if>
+	             </foreach>
+	        </trim>
+	     </trim>
+	    where SU_ID in
+	    <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+	        #{item.suId,jdbcType=INTEGER}
+	    </foreach>
+	</update>
+	
+	<!-- 批量修改主持人ip -->
+	<update id="updateSeatSpareAddressIPs">
+	update t_seatunit
+	   	 <trim prefix="set" suffixOverrides=",">
+	        <trim prefix="SU_SpareAddressIP =case" suffix="end,">
+	             <foreach collection="list" item="item" index="index">
+	             <if test="item.suSpareAddressIP!=null">
+	              when SU_ID=#{item.suId} then #{item.suSpareAddressIP}
+	             </if>
+	             </foreach>
+	        </trim>
+	     </trim>
+	    where SU_ID in
+	    <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+	        #{item.suId,jdbcType=INTEGER}
+	    </foreach>
+	</update>
+	
+	<!--查看坐席模板下的坐席单元的id集合-->
+	<select id="getSeatUnitsIntegerByModelId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+	select SU_ID FROM t_seatunit WHERE SU_SeatModelID =#{in} 
+	</select>
+	
+</mapper>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ld.dao.fileDao.FileTypeDao">
+	<resultMap id="FileTypeResultMap" type="org.ld.model.fileModel.FileType">
+	  <id column="FT_ID" property="fileTypeId" jdbcType="INTEGER"/>
+	  <result column="FT_TypeName" property="typeName" jdbcType="VARCHAR" />
+	  <result column="FT_Num" property="num" jdbcType="VARCHAR" />
+	  <result column="FT_Serial" property="serial" jdbcType="INTEGER" />
+	  <result column="FT_CreatTime" property="creatTime" jdbcType="DATE" />
+	  <result column="FT_UpdateTime" property="updateTime" jdbcType="DATE" />
+	</resultMap>
+	
+	<!-- 查询文件类型 -->
+	<select id="findFileTypes" resultMap="FileTypeResultMap">
+	select w.* from (
+		select	FT_ID,FT_TypeName,FT_Num,FT_Serial,FT_CreatTime,FT_UpdateTime
+		from t_FileType a
+		)w
+		order by FT_Serial asc
+	</select>
+	
+  	
+</mapper>
