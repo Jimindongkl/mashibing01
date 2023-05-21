@@ -1,4 +1,4 @@
-package org.ld.app;
+﻿package org.ld.app;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,6 +11,7 @@ import org.ld.utils.Para;
  * 存储系统配置文件中的常量
  */
 public class Config {
+
 
 	public static Map<String, String> settings;
 	public static Map<String, Integer> settingsInt;
